@@ -6,6 +6,7 @@ import com.crediya.r2dbc.mapper.LoanApplicationEntityMapper;
 import com.crediya.r2dbc.repository.LoanApplicationR2dbcRepository;
 import com.crediya.r2dbc.util.LogMessages;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Mono;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,11 +17,14 @@ public class LoanApplicationPersistenceAdapter implements ILoanApplicationPersis
     private static final Logger logger = LoggerFactory.getLogger(LoanApplicationPersistenceAdapter.class);
     private final LoanApplicationR2dbcRepository repository;
     private final LoanApplicationEntityMapper mapper;
+    private final TransactionalOperator transactionalOperator;
 
     public LoanApplicationPersistenceAdapter(LoanApplicationR2dbcRepository repository, 
-                                           LoanApplicationEntityMapper mapper) {
+                                           LoanApplicationEntityMapper mapper,
+                                           TransactionalOperator transactionalOperator) {
         this.repository = repository;
         this.mapper = mapper;
+        this.transactionalOperator = transactionalOperator;
     }
 
     @Override
@@ -34,7 +38,8 @@ public class LoanApplicationPersistenceAdapter implements ILoanApplicationPersis
                     .doOnSuccess(saved -> 
                         logger.info(LogMessages.LOAN_APPLICATION_SAVE_SUCCESS, correlationId, saved.getId()))
                     .doOnError(error -> 
-                        logger.error(LogMessages.LOAN_APPLICATION_SAVE_ERROR, correlationId, error));
+                        logger.error(LogMessages.LOAN_APPLICATION_SAVE_ERROR, correlationId, error))
+                    .as(transactionalOperator::transactional);
         });
     }
 
