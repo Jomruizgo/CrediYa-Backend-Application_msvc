@@ -4,7 +4,7 @@ import com.crediya.model.LoanApplication;
 import com.crediya.model.Loan;
 import com.crediya.model.ApplicationStatus;
 import com.crediya.gatewayport.ILoanApplicationPersistencePort;
-import com.crediya.exception.LoanApplicationException;
+import com.crediya.exception.InvalidLoanApplicationDataException;
 import com.crediya.serviceport.ILoanApplication;
 import com.crediya.util.Constant;
 import reactor.core.publisher.Mono;
@@ -30,25 +30,25 @@ public class LoanApplicationUseCase implements ILoanApplication {
     private Mono<Void> validateInput(String identityDocument, Loan loan) {
         return Mono.fromRunnable(() -> {
             if (identityDocument == null || identityDocument.trim().isEmpty()) {
-                throw new LoanApplicationException(Constant.IDENTITY_DOCUMENT_REQUIRED);
+                throw new InvalidLoanApplicationDataException(Constant.IDENTITY_DOCUMENT_REQUIRED);
             }
             if (loan == null) {
-                throw new LoanApplicationException(Constant.LOAN_TYPE_REQUIRED);
+                throw new InvalidLoanApplicationDataException(Constant.LOAN_TYPE_REQUIRED);
             }
             if (loan.getAmount() == null) {
-                throw new LoanApplicationException(Constant.AMOUNT_REQUIRED);
+                throw new InvalidLoanApplicationDataException(Constant.AMOUNT_REQUIRED);
             }
             if (loan.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-                throw new LoanApplicationException(Constant.AMOUNT_MUST_BE_POSITIVE);
+                throw new InvalidLoanApplicationDataException(Constant.AMOUNT_MUST_BE_POSITIVE);
             }
             if (loan.getTermMonths() == null) {
-                throw new LoanApplicationException(Constant.TERM_REQUIRED);
+                throw new InvalidLoanApplicationDataException(Constant.TERM_REQUIRED);
             }
             if (loan.getTermMonths() <= 0) {
-                throw new LoanApplicationException(Constant.TERM_MUST_BE_POSITIVE);
+                throw new InvalidLoanApplicationDataException(Constant.TERM_MUST_BE_POSITIVE);
             }
             if (loan.getType() == null) {
-                throw new LoanApplicationException(Constant.LOAN_TYPE_REQUIRED);
+                throw new InvalidLoanApplicationDataException(Constant.LOAN_TYPE_REQUIRED);
             }
         });
     }
