@@ -1,17 +1,18 @@
 package com.crediya.r2dbc.util;
 
-public class LogMessages {
-    
-    // Persistence log messages
-    public static final String SAVING_LOAN_APPLICATION = "Saving loan application with ID: {}";
-    public static final String LOAN_APPLICATION_SAVED_SUCCESSFULLY = "Loan application saved successfully with ID: {}";
-    public static final String ERROR_SAVING_LOAN_APPLICATION = "Error saving loan application with ID: {}";
-    
-    public static final String FINDING_LOAN_APPLICATION_BY_ID = "Finding loan application by ID: {}";
-    public static final String LOAN_APPLICATION_FOUND = "Loan application found with ID: {}";
-    public static final String ERROR_FINDING_LOAN_APPLICATION = "Error finding loan application with ID: {}";
+public final class LogMessages {
     
     private LogMessages() {
-        // Utility class
+        throw new UnsupportedOperationException("Utility class");
     }
+    
+    // Loan Application Persistence Adapter Messages
+    public static final String LOAN_APPLICATION_SAVE_STARTED = "[CREDIYA-DB-{}] Starting to save loan application in database";
+    public static final String LOAN_APPLICATION_SAVE_SUCCESS = "[CREDIYA-DB-{}] Loan application saved successfully in database with ID: {}";
+    public static final String LOAN_APPLICATION_SAVE_ERROR = "[CREDIYA-DB-{}] Error saving loan application in database";
+    
+    public static final String LOAN_APPLICATION_FIND_BY_ID_STARTED = "[CREDIYA-DB-{}] Starting to find loan application by ID: {}";
+    public static final String LOAN_APPLICATION_FIND_BY_ID_SUCCESS = "[CREDIYA-DB-{}] Loan application found in database by ID: {}";
+    public static final String LOAN_APPLICATION_FIND_BY_ID_NOT_FOUND = "[CREDIYA-DB-{}] Loan application not found in database by ID: {}";
+    public static final String LOAN_APPLICATION_FIND_BY_ID_ERROR = "[CREDIYA-DB-{}] Error finding loan application by ID in database";
 }

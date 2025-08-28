@@ -3,45 +3,54 @@ package com.crediya.api;
 import com.crediya.api.dto.request.LoanApplicationRequestDto;
 import com.crediya.api.mapper.LoanApplicationRequestMapper;
 import com.crediya.api.mapper.LoanApplicationResponseMapper;
+import com.crediya.api.util.LogMessages;
 import com.crediya.usecase.LoanApplicationUseCase;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class LoanApplicationHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(LoanApplicationHandler.class);
     private final LoanApplicationUseCase loanApplicationUseCase;
     private final LoanApplicationRequestMapper requestMapper;
     private final LoanApplicationResponseMapper responseMapper;
 
     public Mono<ServerResponse> registerApplication(ServerRequest serverRequest) {
+        String correlationId = getCorrelationId(serverRequest);
+        log.info(LogMessages.LOAN_APPLICATION_REGISTER_STARTED, correlationId);
         return serverRequest.bodyToMono(LoanApplicationRequestDto.class)
                 .doOnNext(request -> 
-                    logger.info("Received loan application request for document: {}", request.getIdentityDocument()))
+                    log.debug(LogMessages.LOAN_APPLICATION_REGISTER_DATA_RECEIVED, correlationId, request.getIdentityDocument()))
                 .flatMap(request -> 
                     loanApplicationUseCase.execute(request.getIdentityDocument(), requestMapper.toLoan(request)))
                 .map(responseMapper::toResponseDto)
-                .flatMap(response -> {
-                    logger.info("Loan application processed successfully with ID: {}", response.getId());
-                    return ServerResponse.ok().bodyValue(response);
-                })
-                .onErrorResume(throwable -> {
-                    logger.error("Error processing loan application request", throwable);
-                    return ServerResponse.badRequest().bodyValue(throwable.getMessage());
-                });
+                .doOnSuccess(response -> log.info(LogMessages.LOAN_APPLICATION_REGISTER_SUCCESS, correlationId, response.getId()))
+                .doOnError(error -> log.error(LogMessages.LOAN_APPLICATION_REGISTER_ERROR, correlationId, error))
+                .flatMap(response -> ServerResponse.ok().bodyValue(response))
+                .contextWrite(ctx -> ctx.put("correlationId", correlationId));
     }
 
     public Mono<ServerResponse> getApplicationById(ServerRequest serverRequest) {
-        // Implementar cuando tengamos findById en el usecase
+        String correlationId = getCorrelationId(serverRequest);
         String applicationId = serverRequest.pathVariable("id");
-        logger.info("Getting loan application with ID: {}", applicationId);
+        log.info(LogMessages.LOAN_APPLICATION_SEARCH_BY_ID_STARTED, correlationId, applicationId);
+        // TODO: Implementar cuando tengamos findById en el usecase
         return ServerResponse.notFound().build();
+    }
+    
+    private String getCorrelationId(ServerRequest request) {
+        String correlationId = request.headers().firstHeader("X-Correlation-ID");
+        if (correlationId == null || correlationId.isEmpty()) {
+            correlationId = UUID.randomUUID().toString().substring(0, 8);
+        }
+        return correlationId;
     }
 }

@@ -14,9 +14,9 @@ public class LoanApplicationRouterRest {
     
     @Bean
     public RouterFunction<ServerResponse> loanApplicationRoutes(LoanApplicationHandler loanApplicationHandler) {
-        return route(POST("/api/v1/solicitud").and(accept(MediaType.APPLICATION_JSON)), 
+        return route(POST("/api/v1/application").and(accept(MediaType.APPLICATION_JSON)),
                     loanApplicationHandler::registerApplication)
-                .andRoute(GET("/api/v1/solicitud/{id}"), 
+                .andRoute(GET("/api/v1/application/{id}"),
                     loanApplicationHandler::getApplicationById);
     }
 }

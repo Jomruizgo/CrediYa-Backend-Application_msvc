@@ -25,25 +25,36 @@ public class LoanApplicationPersistenceAdapter implements ILoanApplicationPersis
 
     @Override
     public Mono<LoanApplication> save(LoanApplication loanApplication) {
-        logger.info(LogMessages.SAVING_LOAN_APPLICATION, loanApplication.getId());
-        
-        return repository.save(mapper.toEntity(loanApplication))
-                .map(mapper::toDomain)
-                .doOnSuccess(saved -> 
-                    logger.info(LogMessages.LOAN_APPLICATION_SAVED_SUCCESSFULLY, saved.getId()))
-                .doOnError(error -> 
-                    logger.error(LogMessages.ERROR_SAVING_LOAN_APPLICATION, loanApplication.getId(), error));
+        return Mono.deferContextual(ctx -> {
+            String correlationId = ctx.getOrDefault("correlationId", "NO_CONTEXT");
+            logger.info(LogMessages.LOAN_APPLICATION_SAVE_STARTED, correlationId);
+            
+            return repository.save(mapper.toEntity(loanApplication))
+                    .map(mapper::toDomain)
+                    .doOnSuccess(saved -> 
+                        logger.info(LogMessages.LOAN_APPLICATION_SAVE_SUCCESS, correlationId, saved.getId()))
+                    .doOnError(error -> 
+                        logger.error(LogMessages.LOAN_APPLICATION_SAVE_ERROR, correlationId, error));
+        });
     }
 
     @Override
     public Mono<LoanApplication> findById(String id) {
-        logger.info(LogMessages.FINDING_LOAN_APPLICATION_BY_ID, id);
-        
-        return repository.findById(id)
-                .map(mapper::toDomain)
-                .doOnSuccess(found -> 
-                    logger.info(LogMessages.LOAN_APPLICATION_FOUND, id))
-                .doOnError(error -> 
-                    logger.error(LogMessages.ERROR_FINDING_LOAN_APPLICATION, id, error));
+        return Mono.deferContextual(ctx -> {
+            String correlationId = ctx.getOrDefault("correlationId", "NO_CONTEXT");
+            logger.info(LogMessages.LOAN_APPLICATION_FIND_BY_ID_STARTED, correlationId, id);
+            
+            return repository.findById(id)
+                    .map(mapper::toDomain)
+                    .doOnSuccess(found -> {
+                        if (found != null) {
+                            logger.info(LogMessages.LOAN_APPLICATION_FIND_BY_ID_SUCCESS, correlationId, id);
+                        } else {
+                            logger.info(LogMessages.LOAN_APPLICATION_FIND_BY_ID_NOT_FOUND, correlationId, id);
+                        }
+                    })
+                    .doOnError(error -> 
+                        logger.error(LogMessages.LOAN_APPLICATION_FIND_BY_ID_ERROR, correlationId, error));
+        });
     }
 }
