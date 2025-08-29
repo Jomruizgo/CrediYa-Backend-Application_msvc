@@ -5,7 +5,8 @@ import reactor.core.publisher.Mono;
 
 public interface ILoanApplication {
 
-    public Mono<com.crediya.model.LoanApplication> execute(String identityDocument, Loan loan);
-
+    Mono<com.crediya.model.LoanApplication> execute(Long userId, String identityDocument, Loan loan);
+    
+    Mono<com.crediya.model.LoanApplication> findById(String id);
 
 }

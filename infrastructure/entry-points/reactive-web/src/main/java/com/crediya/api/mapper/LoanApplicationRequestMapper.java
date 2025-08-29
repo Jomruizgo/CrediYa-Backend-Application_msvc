@@ -10,6 +10,6 @@ public interface LoanApplicationRequestMapper {
 
     @Mapping(target = "amount", source = "amount")
     @Mapping(target = "termMonths", source = "termMonths")
-    @Mapping(target = "type", source = "loanType")
+    @Mapping(target = "loanTypeId", source = "loanTypeId")
     Loan toLoan(LoanApplicationRequestDto requestDto);
 }

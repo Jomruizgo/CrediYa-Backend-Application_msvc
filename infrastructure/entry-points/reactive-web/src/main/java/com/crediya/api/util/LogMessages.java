@@ -14,5 +14,14 @@ public final class LogMessages {
     
     public static final String LOAN_APPLICATION_SEARCH_BY_ID_STARTED = "[CREDIYA-{}] Starting loan application search by ID: {}";
     public static final String LOAN_APPLICATION_SEARCH_BY_ID_SUCCESS = "[CREDIYA-{}] Loan application found by ID: {}";
-    public static final String LOAN_APPLICATION_SEARCH_BY_ID_ERROR = "[CREDIYA-{}] Error searching loan application by ID";
+    public static final String LOAN_APPLICATION_SEARCH_BY_ID_ERROR = "[CREDIYA-{}] Error searching loan application by ID: {}";
+    
+    // Loan Type Handler Messages
+    public static final String LOAN_TYPE_GET_ALL_STARTED = "[CREDIYA-{}] Starting get all active loan types";
+    public static final String LOAN_TYPE_GET_ALL_SUCCESS = "[CREDIYA-{}] Found {} active loan types";
+    public static final String LOAN_TYPE_GET_ALL_ERROR = "[CREDIYA-{}] Error getting all active loan types";
+    
+    public static final String LOAN_TYPE_GET_BY_ID_STARTED = "[CREDIYA-{}] Starting get loan type by ID: {}";
+    public static final String LOAN_TYPE_GET_BY_ID_SUCCESS = "[CREDIYA-{}] Loan type found by ID: {}";
+    public static final String LOAN_TYPE_GET_BY_ID_ERROR = "[CREDIYA-{}] Error getting loan type by ID: {}";
 }

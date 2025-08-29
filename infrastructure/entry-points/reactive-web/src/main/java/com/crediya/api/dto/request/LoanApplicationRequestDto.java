@@ -1,6 +1,5 @@
 package com.crediya.api.dto.request;
 
-import com.crediya.model.LoanType;
 import com.crediya.util.Constant;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
@@ -10,6 +9,9 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 public class LoanApplicationRequestDto {
+    
+    @NotNull(message = Constant.DTO_USER_ID_REQUIRED)
+    private Long userId;
     
     @NotBlank(message = Constant.DTO_IDENTITY_DOCUMENT_REQUIRED)
     private String identityDocument;
@@ -23,15 +25,24 @@ public class LoanApplicationRequestDto {
     private Integer termMonths;
     
     @NotNull(message = Constant.DTO_LOAN_TYPE_REQUIRED)
-    private LoanType loanType;
+    private Long loanTypeId;
 
     public LoanApplicationRequestDto() {}
 
-    public LoanApplicationRequestDto(String identityDocument, BigDecimal amount, Integer termMonths, LoanType loanType) {
+    public LoanApplicationRequestDto(Long userId, String identityDocument, BigDecimal amount, Integer termMonths, Long loanTypeId) {
+        this.userId = userId;
         this.identityDocument = identityDocument;
         this.amount = amount;
         this.termMonths = termMonths;
-        this.loanType = loanType;
+        this.loanTypeId = loanTypeId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getIdentityDocument() {
@@ -58,11 +69,11 @@ public class LoanApplicationRequestDto {
         this.termMonths = termMonths;
     }
 
-    public LoanType getLoanType() {
-        return loanType;
+    public Long getLoanTypeId() {
+        return loanTypeId;
     }
 
-    public void setLoanType(LoanType loanType) {
-        this.loanType = loanType;
+    public void setLoanTypeId(Long loanTypeId) {
+        this.loanTypeId = loanTypeId;
     }
 }

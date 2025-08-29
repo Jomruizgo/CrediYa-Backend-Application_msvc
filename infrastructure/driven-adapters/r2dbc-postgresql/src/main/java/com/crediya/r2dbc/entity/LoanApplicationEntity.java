@@ -14,20 +14,20 @@ public class LoanApplicationEntity {
     private String identityDocument;
     private BigDecimal amount;
     private Integer termMonths;
-    private String loanType;
+    private Long loanTypeId;
     private String status;
     private LocalDateTime createdAt;
 
     public LoanApplicationEntity() {}
 
     public LoanApplicationEntity(String id, String identityDocument, BigDecimal amount, 
-                               Integer termMonths, String loanType, String status, 
+                               Integer termMonths, Long loanTypeId, String status, 
                                LocalDateTime createdAt) {
         this.id = id;
         this.identityDocument = identityDocument;
         this.amount = amount;
         this.termMonths = termMonths;
-        this.loanType = loanType;
+        this.loanTypeId = loanTypeId;
         this.status = status;
         this.createdAt = createdAt;
     }
@@ -64,12 +64,12 @@ public class LoanApplicationEntity {
         this.termMonths = termMonths;
     }
 
-    public String getLoanType() {
-        return loanType;
+    public Long getLoanTypeId() {
+        return loanTypeId;
     }
 
-    public void setLoanType(String loanType) {
-        this.loanType = loanType;
+    public void setLoanTypeId(Long loanTypeId) {
+        this.loanTypeId = loanTypeId;
     }
 
     public String getStatus() {

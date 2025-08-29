@@ -26,3 +26,5 @@ include ':errorhandling'
 project(':errorhandling').projectDir = file('./infrastructure/helpers/errorhandling')
 include ':r2dbc-postgresql'
 project(':r2dbc-postgresql').projectDir = file('./infrastructure/driven-adapters/r2dbc-postgresql')
+include ':auth-client'
+project(':auth-client').projectDir = file('./infrastructure/driven-adapters/auth-client')

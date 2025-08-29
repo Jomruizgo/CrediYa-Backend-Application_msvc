@@ -2,7 +2,6 @@ package com.crediya.r2dbc.mapper;
 
 import com.crediya.model.LoanApplication;
 import com.crediya.model.Loan;
-import com.crediya.model.LoanType;
 import com.crediya.model.ApplicationStatus;
 import com.crediya.r2dbc.entity.LoanApplicationEntity;
 import org.mapstruct.Mapper;
@@ -14,18 +13,13 @@ public interface LoanApplicationEntityMapper {
 
     @Mapping(target = "amount", source = "loan.amount")
     @Mapping(target = "termMonths", source = "loan.termMonths")
-    @Mapping(target = "loanType", source = "loan.type", qualifiedByName = "loanTypeToString")
+    @Mapping(target = "loanTypeId", source = "loan.loanTypeId")
     @Mapping(target = "status", source = "status", qualifiedByName = "statusToString")
     LoanApplicationEntity toEntity(LoanApplication domain);
 
     @Mapping(target = "loan", source = ".", qualifiedByName = "entityToLoan")
     @Mapping(target = "status", source = "status", qualifiedByName = "stringToStatus")
     LoanApplication toDomain(LoanApplicationEntity entity);
-
-    @Named("loanTypeToString")
-    default String loanTypeToString(LoanType loanType) {
-        return loanType != null ? loanType.name() : null;
-    }
 
     @Named("statusToString")
     default String statusToString(ApplicationStatus status) {
@@ -42,7 +36,7 @@ public interface LoanApplicationEntityMapper {
         return new Loan(
                 entity.getAmount(),
                 entity.getTermMonths(),
-                LoanType.valueOf(entity.getLoanType())
+                entity.getLoanTypeId()
         );
     }
 }

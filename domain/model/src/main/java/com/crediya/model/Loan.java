@@ -6,12 +6,12 @@ import java.util.Objects;
 public class Loan {
     private final BigDecimal amount;
     private final Integer termMonths;
-    private final LoanType type;
+    private final Long loanTypeId;
 
-    public Loan(BigDecimal amount, Integer termMonths, LoanType type) {
+    public Loan(BigDecimal amount, Integer termMonths, Long loanTypeId) {
         this.amount = amount;
         this.termMonths = termMonths;
-        this.type = type;
+        this.loanTypeId = loanTypeId;
     }
 
     public BigDecimal getAmount() {
@@ -22,8 +22,8 @@ public class Loan {
         return termMonths;
     }
 
-    public LoanType getType() {
-        return type;
+    public Long getLoanTypeId() {
+        return loanTypeId;
     }
 
     @Override
@@ -33,12 +33,12 @@ public class Loan {
         Loan loan = (Loan) o;
         return Objects.equals(amount, loan.amount) &&
                 Objects.equals(termMonths, loan.termMonths) &&
-                type == loan.type;
+                Objects.equals(loanTypeId, loan.loanTypeId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(amount, termMonths, type);
+        return Objects.hash(amount, termMonths, loanTypeId);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class Loan {
         return "Loan{" +
                 "amount=" + amount +
                 ", termMonths=" + termMonths +
-                ", type=" + type +
+                ", loanTypeId=" + loanTypeId +
                 '}';
     }
 }

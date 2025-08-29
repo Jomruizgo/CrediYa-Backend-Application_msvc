@@ -12,7 +12,7 @@ public interface LoanApplicationResponseMapper {
     @Mapping(target = "identityDocument", source = "identityDocument")
     @Mapping(target = "amount", source = "loan.amount")
     @Mapping(target = "termMonths", source = "loan.termMonths")
-    @Mapping(target = "loanType", source = "loan.type")
+    @Mapping(target = "loanTypeId", source = "loan.loanTypeId")
     @Mapping(target = "status", source = "status")
     @Mapping(target = "createdAt", source = "createdAt")
     LoanApplicationResponseDto toResponseDto(LoanApplication loanApplication);

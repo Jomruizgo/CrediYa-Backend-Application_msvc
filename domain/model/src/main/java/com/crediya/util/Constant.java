@@ -14,7 +14,7 @@ public class Constant {
     
     // Error Messages
     public static final String LOAN_APPLICATION_NOT_FOUND_BY_ID = "Loan application with ID %s not found";
-    public static final String LOAN_APPLICATION_ALREADY_EXISTS = "Loan application with identity document %s already exists";
+    public static final String LOAN_APPLICATION_ALREADY_EXISTS = "Already exists a pending loan application with identity document %s ";
     
     // Business messages
     public static final String APPLICATION_REGISTERED_SUCCESSFULLY = "Application registered successfully";
@@ -24,6 +24,7 @@ public class Constant {
     public static final String INITIAL_APPLICATION_STATE = "PENDING_REVIEW";
     
     // DTO Validation Messages (Entry Point Layer)
+    public static final String DTO_USER_ID_REQUIRED = "User ID field is mandatory";
     public static final String DTO_IDENTITY_DOCUMENT_REQUIRED = "Identity document field is mandatory";
     public static final String DTO_AMOUNT_REQUIRED = "Amount field is mandatory";
     public static final String DTO_AMOUNT_MIN = "Amount must be greater than zero";

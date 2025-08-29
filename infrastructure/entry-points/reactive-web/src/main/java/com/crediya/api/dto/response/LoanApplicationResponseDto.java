@@ -1,6 +1,5 @@
 package com.crediya.api.dto.response;
 
-import com.crediya.model.LoanType;
 import com.crediya.model.ApplicationStatus;
 
 import java.math.BigDecimal;
@@ -11,20 +10,20 @@ public class LoanApplicationResponseDto {
     private String identityDocument;
     private BigDecimal amount;
     private Integer termMonths;
-    private LoanType loanType;
+    private Long loanTypeId;
     private ApplicationStatus status;
     private LocalDateTime createdAt;
 
     public LoanApplicationResponseDto() {}
 
     public LoanApplicationResponseDto(String id, String identityDocument, BigDecimal amount, 
-                                    Integer termMonths, LoanType loanType, ApplicationStatus status, 
+                                    Integer termMonths, Long loanTypeId, ApplicationStatus status, 
                                     LocalDateTime createdAt) {
         this.id = id;
         this.identityDocument = identityDocument;
         this.amount = amount;
         this.termMonths = termMonths;
-        this.loanType = loanType;
+        this.loanTypeId = loanTypeId;
         this.status = status;
         this.createdAt = createdAt;
     }
@@ -61,12 +60,12 @@ public class LoanApplicationResponseDto {
         this.termMonths = termMonths;
     }
 
-    public LoanType getLoanType() {
-        return loanType;
+    public Long getLoanTypeId() {
+        return loanTypeId;
     }
 
-    public void setLoanType(LoanType loanType) {
-        this.loanType = loanType;
+    public void setLoanTypeId(Long loanTypeId) {
+        this.loanTypeId = loanTypeId;
     }
 
     public ApplicationStatus getStatus() {
