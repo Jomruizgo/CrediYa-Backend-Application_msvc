@@ -31,38 +31,42 @@ public class LoanApplicationUseCase implements ILoanApplication {
     }
 
     public Mono<LoanApplication> execute(Long userId, String identityDocument, Loan loan) {
-        return validateInput(identityDocument, loan)
-                .then(validateLoanLimits(loan))
-                .then(validateNoPendingApplication(identityDocument))
-                .then(authCommunicationPort.validateAndUpdateUserDocument(userId, identityDocument))
-                .then(createLoanApplication(identityDocument, loan))
-                .flatMap(loanApplicationPersistencePort::save);
-    }
-
-    private Mono<Void> validateInput(String identityDocument, Loan loan) {
-        return Mono.fromRunnable(() -> {
-            if (identityDocument == null || identityDocument.trim().isEmpty()) {
-                throw new InvalidLoanApplicationDataException(Constant.IDENTITY_DOCUMENT_REQUIRED);
-            }
-            if (loan == null) {
-                throw new InvalidLoanApplicationDataException(Constant.LOAN_TYPE_REQUIRED);
-            }
-            if (loan.getAmount() == null) {
-                throw new InvalidLoanApplicationDataException(Constant.AMOUNT_REQUIRED);
-            }
-            if (loan.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-                throw new InvalidLoanApplicationDataException(Constant.AMOUNT_MUST_BE_POSITIVE);
-            }
-            if (loan.getTermMonths() == null) {
-                throw new InvalidLoanApplicationDataException(Constant.TERM_REQUIRED);
-            }
-            if (loan.getTermMonths() <= 0) {
-                throw new InvalidLoanApplicationDataException(Constant.TERM_MUST_BE_POSITIVE);
-            }
-            if (loan.getLoanTypeId() == null) {
-                throw new InvalidLoanApplicationDataException(Constant.LOAN_TYPE_REQUIRED);
+        return Mono.defer(() -> {
+            try {
+                validateInputSync(identityDocument, loan);
+                return validateLoanLimits(loan)
+                        .then(Mono.defer(() -> validateNoPendingApplication(identityDocument)))
+                        .then(Mono.defer(() -> authCommunicationPort.validateAndUpdateUserDocument(userId, identityDocument)))
+                        .then(createLoanApplication(identityDocument, loan))
+                        .flatMap(loanApplicationPersistencePort::save);
+            } catch (Exception e) {
+                return Mono.error(e);
             }
         });
+    }
+
+    private void validateInputSync(String identityDocument, Loan loan) {
+        if (identityDocument == null || identityDocument.trim().isEmpty()) {
+            throw new InvalidLoanApplicationDataException(Constant.IDENTITY_DOCUMENT_REQUIRED);
+        }
+        if (loan == null) {
+            throw new InvalidLoanApplicationDataException(Constant.LOAN_TYPE_REQUIRED);
+        }
+        if (loan.getAmount() == null) {
+            throw new InvalidLoanApplicationDataException(Constant.AMOUNT_REQUIRED);
+        }
+        if (loan.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidLoanApplicationDataException(Constant.AMOUNT_MUST_BE_POSITIVE);
+        }
+        if (loan.getTermMonths() == null) {
+            throw new InvalidLoanApplicationDataException(Constant.TERM_REQUIRED);
+        }
+        if (loan.getTermMonths() <= 0) {
+            throw new InvalidLoanApplicationDataException(Constant.TERM_MUST_BE_POSITIVE);
+        }
+        if (loan.getLoanTypeId() == null) {
+            throw new InvalidLoanApplicationDataException(Constant.LOAN_TYPE_REQUIRED);
+        }
     }
 
     private Mono<Void> validateLoanLimits(Loan loan) {

@@ -29,8 +29,14 @@ public class LoanTypeUseCase implements ILoanTypeServicePort {
 
     @Override
     public Mono<LoanType> createLoanType(LoanType loanType) {
-        return validateLoanType(loanType)
-                .then(loanTypePersistencePort.save(loanType));
+        return Mono.defer(() -> {
+            try {
+                validateLoanTypeSync(loanType);
+                return loanTypePersistencePort.save(loanType);
+            } catch (Exception e) {
+                return Mono.error(e);
+            }
+        });
     }
 
     @Override
@@ -38,21 +44,27 @@ public class LoanTypeUseCase implements ILoanTypeServicePort {
         return loanTypePersistencePort.findById(id)
                 .switchIfEmpty(Mono.error(new IllegalArgumentException(
                     String.format(LoanTypeErrorMessages.LOAN_TYPE_NOT_FOUND, id))))
-                .then(validateLoanType(loanType))
-                .then(Mono.fromCallable(() -> new LoanType(
-                    id,
-                    loanType.getName(),
-                    loanType.getDescription(),
-                    loanType.getMinAmount(),
-                    loanType.getMaxAmount(),
-                    loanType.getMinTermMonths(),
-                    loanType.getMaxTermMonths(),
-                    loanType.getInterestRate(),
-                    loanType.getIsActive(),
-                    loanType.getCreatedAt(),
-                    loanType.getUpdatedAt()
-                )))
-                .flatMap(loanTypePersistencePort::update);
+                .flatMap(existing -> Mono.defer(() -> {
+                    try {
+                        validateLoanTypeSync(loanType);
+                        LoanType updatedLoanType = new LoanType(
+                            id,
+                            loanType.getName(),
+                            loanType.getDescription(),
+                            loanType.getMinAmount(),
+                            loanType.getMaxAmount(),
+                            loanType.getMinTermMonths(),
+                            loanType.getMaxTermMonths(),
+                            loanType.getInterestRate(),
+                            loanType.getIsActive(),
+                            loanType.getCreatedAt(),
+                            loanType.getUpdatedAt()
+                        );
+                        return loanTypePersistencePort.update(updatedLoanType);
+                    } catch (Exception e) {
+                        return Mono.error(e);
+                    }
+                }));
     }
 
     @Override
@@ -60,20 +72,18 @@ public class LoanTypeUseCase implements ILoanTypeServicePort {
         return loanTypePersistencePort.findById(id)
                 .switchIfEmpty(Mono.error(new IllegalArgumentException(
                     String.format(LoanTypeErrorMessages.LOAN_TYPE_NOT_FOUND, id))))
-                .then(loanTypePersistencePort.deleteById(id));
+                .then(Mono.defer(() -> loanTypePersistencePort.deleteById(id)));
     }
 
-    private Mono<Void> validateLoanType(LoanType loanType) {
-        return Mono.fromRunnable(() -> {
-            if (loanType.getMinAmount().compareTo(loanType.getMaxAmount()) > 0) {
-                throw new IllegalArgumentException(LoanTypeErrorMessages.MIN_AMOUNT_GREATER_THAN_MAX);
-            }
-            if (loanType.getMinTermMonths() > loanType.getMaxTermMonths()) {
-                throw new IllegalArgumentException(LoanTypeErrorMessages.MIN_TERM_GREATER_THAN_MAX);
-            }
-            if (loanType.getInterestRate().signum() <= 0) {
-                throw new IllegalArgumentException(LoanTypeErrorMessages.INTEREST_RATE_MUST_BE_POSITIVE);
-            }
-        });
+    private void validateLoanTypeSync(LoanType loanType) {
+        if (loanType.getMinAmount().compareTo(loanType.getMaxAmount()) > 0) {
+            throw new IllegalArgumentException(LoanTypeErrorMessages.MIN_AMOUNT_GREATER_THAN_MAX);
+        }
+        if (loanType.getMinTermMonths() > loanType.getMaxTermMonths()) {
+            throw new IllegalArgumentException(LoanTypeErrorMessages.MIN_TERM_GREATER_THAN_MAX);
+        }
+        if (loanType.getInterestRate().signum() <= 0) {
+            throw new IllegalArgumentException(LoanTypeErrorMessages.INTEREST_RATE_MUST_BE_POSITIVE);
+        }
     }
 }
