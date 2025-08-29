@@ -1,7 +1,9 @@
 package com.crediya.api.handler;
 
+import com.crediya.api.docs.LoanTypeApiDocs;
 import com.crediya.api.util.LogMessages;
 import com.crediya.serviceport.ILoanTypeServicePort;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -14,7 +16,8 @@ import java.util.UUID;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class LoanTypeHandler {
+@Tag(name = "Loan Types", description = "Operations related to loan types")
+public class LoanTypeHandler extends LoanTypeApiDocs {
 
     private final ILoanTypeServicePort loanTypeServicePort;
 

@@ -1,10 +1,12 @@
 package com.crediya.api.handler;
 
+import com.crediya.api.docs.LoanApplicationApiDocs;
 import com.crediya.api.dto.request.LoanApplicationRequestDto;
 import com.crediya.api.mapper.LoanApplicationRequestMapper;
 import com.crediya.api.mapper.LoanApplicationResponseMapper;
 import com.crediya.api.util.LogMessages;
 import com.crediya.usecase.LoanApplicationUseCase;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -17,7 +19,8 @@ import java.util.UUID;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class LoanApplicationHandler {
+@Tag(name = "Loan Applications", description = "Operations related to loan applications")
+public class LoanApplicationHandler extends LoanApplicationApiDocs {
 
     private final LoanApplicationUseCase loanApplicationUseCase;
     private final LoanApplicationRequestMapper requestMapper;
