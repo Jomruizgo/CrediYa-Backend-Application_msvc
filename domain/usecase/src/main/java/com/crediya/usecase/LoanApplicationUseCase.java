@@ -10,6 +10,7 @@ import com.crediya.exception.InvalidLoanApplicationDataException;
 import com.crediya.exception.LoanApplicationAlreadyExistsException;
 import com.crediya.serviceport.ILoanApplication;
 import com.crediya.util.Constant;
+import com.crediya.util.UseCaseMessages;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -47,50 +48,51 @@ public class LoanApplicationUseCase implements ILoanApplication {
 
     private void validateInputSync(String identityDocument, Loan loan) {
         if (identityDocument == null || identityDocument.trim().isEmpty()) {
-            throw new InvalidLoanApplicationDataException(Constant.IDENTITY_DOCUMENT_REQUIRED);
+            throw new InvalidLoanApplicationDataException(UseCaseMessages.IDENTITY_DOCUMENT_REQUIRED);
         }
         if (loan == null) {
-            throw new InvalidLoanApplicationDataException(Constant.LOAN_TYPE_REQUIRED);
+            throw new InvalidLoanApplicationDataException(UseCaseMessages.LOAN_TYPE_REQUIRED);
         }
         if (loan.getAmount() == null) {
-            throw new InvalidLoanApplicationDataException(Constant.AMOUNT_REQUIRED);
+            throw new InvalidLoanApplicationDataException(UseCaseMessages.AMOUNT_REQUIRED);
         }
         if (loan.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidLoanApplicationDataException(Constant.AMOUNT_MUST_BE_POSITIVE);
+            throw new InvalidLoanApplicationDataException(UseCaseMessages.AMOUNT_MUST_BE_POSITIVE);
         }
         if (loan.getTermMonths() == null) {
-            throw new InvalidLoanApplicationDataException(Constant.TERM_REQUIRED);
+            throw new InvalidLoanApplicationDataException(UseCaseMessages.TERM_REQUIRED);
         }
         if (loan.getTermMonths() <= 0) {
-            throw new InvalidLoanApplicationDataException(Constant.TERM_MUST_BE_POSITIVE);
+            throw new InvalidLoanApplicationDataException(UseCaseMessages.TERM_MUST_BE_POSITIVE);
         }
         if (loan.getLoanTypeId() == null) {
-            throw new InvalidLoanApplicationDataException(Constant.LOAN_TYPE_REQUIRED);
+            throw new InvalidLoanApplicationDataException(UseCaseMessages.LOAN_TYPE_REQUIRED);
         }
     }
 
     private Mono<Void> validateLoanLimits(Loan loan) {
         return loanTypePersistencePort.findByIdAndActive(loan.getLoanTypeId())
-                .switchIfEmpty(Mono.error(new InvalidLoanApplicationDataException("Invalid loan type ID: " + loan.getLoanTypeId())))
+                .switchIfEmpty(Mono.error(new InvalidLoanApplicationDataException(
+                    String.format(UseCaseMessages.INVALID_LOAN_TYPE, loan.getLoanTypeId()))))
                 .flatMap(loanType -> {
                     if (loan.getAmount().compareTo(loanType.getMinAmount()) < 0) {
                         return Mono.error(new InvalidLoanApplicationDataException(
-                            String.format("Amount %s is below minimum %s for loan type %s", 
+                            String.format(UseCaseMessages.AMOUNT_BELOW_MINIMUM, 
                                 loan.getAmount(), loanType.getMinAmount(), loanType.getName())));
                     }
                     if (loan.getAmount().compareTo(loanType.getMaxAmount()) > 0) {
                         return Mono.error(new InvalidLoanApplicationDataException(
-                            String.format("Amount %s exceeds maximum %s for loan type %s", 
+                            String.format(UseCaseMessages.AMOUNT_EXCEEDS_MAXIMUM, 
                                 loan.getAmount(), loanType.getMaxAmount(), loanType.getName())));
                     }
                     if (loan.getTermMonths() < loanType.getMinTermMonths()) {
                         return Mono.error(new InvalidLoanApplicationDataException(
-                            String.format("Term %s months is below minimum %s for loan type %s", 
+                            String.format(UseCaseMessages.TERM_BELOW_MINIMUM, 
                                 loan.getTermMonths(), loanType.getMinTermMonths(), loanType.getName())));
                     }
                     if (loan.getTermMonths() > loanType.getMaxTermMonths()) {
                         return Mono.error(new InvalidLoanApplicationDataException(
-                            String.format("Term %s months exceeds maximum %s for loan type %s", 
+                            String.format(UseCaseMessages.TERM_EXCEEDS_MAXIMUM, 
                                 loan.getTermMonths(), loanType.getMaxTermMonths(), loanType.getName())));
                     }
                     return Mono.empty();
@@ -101,7 +103,8 @@ public class LoanApplicationUseCase implements ILoanApplication {
     private Mono<Void> validateNoPendingApplication(String identityDocument) {
         return loanApplicationPersistencePort.findByIdentityDocumentAndStatus(identityDocument, ApplicationStatus.PENDING_REVIEW)
                 .flatMap(existingApplication -> {
-                    return Mono.<Void>error(new LoanApplicationAlreadyExistsException(identityDocument));
+                    return Mono.<Void>error(new LoanApplicationAlreadyExistsException(
+                        String.format(UseCaseMessages.LOAN_APPLICATION_ALREADY_EXISTS, identityDocument)));
                 })
                 .switchIfEmpty(Mono.empty());
     }
@@ -109,7 +112,8 @@ public class LoanApplicationUseCase implements ILoanApplication {
     @Override
     public Mono<LoanApplication> findById(String id) {
         return loanApplicationPersistencePort.findById(id)
-                .switchIfEmpty(Mono.error(new InvalidLoanApplicationDataException("Loan application not found with id: " + id)));
+                .switchIfEmpty(Mono.error(new InvalidLoanApplicationDataException(
+                    String.format(UseCaseMessages.LOAN_APPLICATION_NOT_FOUND, id))));
     }
 
     private Mono<LoanApplication> createLoanApplication(String identityDocument, Loan loan) {
