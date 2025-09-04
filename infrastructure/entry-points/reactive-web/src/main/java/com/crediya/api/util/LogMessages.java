@@ -24,4 +24,9 @@ public final class LogMessages {
     public static final String LOAN_TYPE_GET_BY_ID_STARTED = "[CREDIYA-{}] Starting get loan type by ID: {}";
     public static final String LOAN_TYPE_GET_BY_ID_SUCCESS = "[CREDIYA-{}] Loan type found by ID: {}";
     public static final String LOAN_TYPE_GET_BY_ID_ERROR = "[CREDIYA-{}] Error getting loan type by ID: {}";
+    
+    // Correlation ID messages
+    public static final String CORRELATION_ID_PROCESSING = "Processing request with correlation ID: {}";
+    public static final String CORRELATION_ID_GENERATED = "Generated new correlation ID: {}";
+    public static final String CORRELATION_ID_FROM_HEADER = "Using correlation ID from header: {}";
 }
