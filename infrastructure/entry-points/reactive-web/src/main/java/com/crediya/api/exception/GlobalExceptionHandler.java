@@ -3,6 +3,7 @@ package com.crediya.api.exception;
 import com.crediya.exception.InvalidLoanApplicationDataException;
 import com.crediya.exception.LoanApplicationAlreadyExistsException;
 import com.crediya.exception.LoanApplicationNotFoundException;
+import com.crediya.exception.UnauthorizedUserException;
 import com.crediya.errorhandling.ExceptionResponse;
 import com.crediya.errorhandling.util.ErrorConstants;
 import org.slf4j.Logger;
@@ -66,6 +67,20 @@ public class GlobalExceptionHandler {
         );
         
         return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse));
+    }
+
+    @ExceptionHandler(UnauthorizedUserException.class)
+    public Mono<ResponseEntity<ExceptionResponse>> handleUnauthorizedUserException(UnauthorizedUserException ex, ServerWebExchange exchange) {
+        String correlationId = getCorrelationId(exchange);
+        logger.error(ErrorConstants.LOG_UNAUTHORIZED_USER, correlationId, ex.getMessage(), ex.getStackTrace()[0]);
+        
+        ExceptionResponse errorResponse = new ExceptionResponse(
+            ex.getMessage(),
+            ErrorConstants.UNAUTHORIZED,
+            LocalDateTime.now()
+        );
+        
+        return Mono.just(ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse));
     }
 
     @ExceptionHandler(WebExchangeBindException.class)

@@ -6,6 +6,7 @@ public class ErrorConstants {
     public static final String VALIDATION_ERROR = "VALIDATION_ERROR";
     public static final String NOT_FOUND = "NOT_FOUND";
     public static final String CONFLICT = "CONFLICT";
+    public static final String UNAUTHORIZED = "UNAUTHORIZED";
     public static final String INTERNAL_ERROR = "INTERNAL_ERROR";
     
     // Error messages
@@ -15,6 +16,7 @@ public class ErrorConstants {
     public static final String LOG_LOAN_APPLICATION_VALIDATION_ERROR = "[CREDIYA-{}] Loan application validation error: {} at {}";
     public static final String LOG_LOAN_APPLICATION_NOT_FOUND = "[CREDIYA-{}] Loan application not found: {} at {}";
     public static final String LOG_LOAN_APPLICATION_ALREADY_EXISTS = "[CREDIYA-{}] Loan application already exists: {} at {}";
+    public static final String LOG_UNAUTHORIZED_USER = "[CREDIYA-{}] Unauthorized user: {} at {}";
     public static final String LOG_VALIDATION_ERROR = "[CREDIYA-{}] Validation error: {} at {}";
     public static final String LOG_CONSTRAINT_VIOLATION = "[CREDIYA-{}] Constraint violation: {} at {}";
     public static final String LOG_AUTH_SERVICE_ERROR = "[CREDIYA-{}] Auth service error ({}): {} at {}";

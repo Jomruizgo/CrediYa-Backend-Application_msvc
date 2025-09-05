@@ -23,6 +23,11 @@ management:
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
 
+# JWT Security Configuration - MUST match auth microservice secret
+security:
+  jwt:
+    secret: "mySecretKeyForDevelopment123456789012345678901234567890SecureHS512"
+
 adapters:
   r2dbc:
     host: localhost
@@ -50,6 +55,7 @@ logging:
     org.springframework.r2dbc: ERROR
     org.springframework.data.r2dbc: ERROR
     org.springframework: WARN
+    #org.springframework.security: DEBUG
     io.r2dbc.postgresql: ERROR
   pattern:
     console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%-5level){highlight} %clr([%15.15t]){faint} %clr([%X{correlationId:-NO_TRACE}]){magenta} %clr(%logger{36}){blue} - %msg%n%wEx{2}"

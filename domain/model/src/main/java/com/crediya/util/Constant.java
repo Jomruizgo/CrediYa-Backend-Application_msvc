@@ -24,7 +24,6 @@ public class Constant {
     public static final String INITIAL_APPLICATION_STATE = "PENDING_REVIEW";
     
     // DTO Validation Messages (Entry Point Layer)
-    public static final String DTO_USER_ID_REQUIRED = "User ID field is mandatory";
     public static final String DTO_IDENTITY_DOCUMENT_REQUIRED = "Identity document field is mandatory";
     public static final String DTO_AMOUNT_REQUIRED = "Amount field is mandatory";
     public static final String DTO_AMOUNT_MIN = "Amount must be greater than zero";

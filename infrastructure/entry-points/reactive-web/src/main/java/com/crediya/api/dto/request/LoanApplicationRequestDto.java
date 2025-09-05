@@ -10,8 +10,6 @@ import java.math.BigDecimal;
 
 public class LoanApplicationRequestDto {
     
-    @NotNull(message = Constant.DTO_USER_ID_REQUIRED)
-    private Long userId;
     
     @NotBlank(message = Constant.DTO_IDENTITY_DOCUMENT_REQUIRED)
     private String identityDocument;
@@ -29,20 +27,11 @@ public class LoanApplicationRequestDto {
 
     public LoanApplicationRequestDto() {}
 
-    public LoanApplicationRequestDto(Long userId, String identityDocument, BigDecimal amount, Integer termMonths, Long loanTypeId) {
-        this.userId = userId;
+    public LoanApplicationRequestDto(String identityDocument, BigDecimal amount, Integer termMonths, Long loanTypeId) {
         this.identityDocument = identityDocument;
         this.amount = amount;
         this.termMonths = termMonths;
         this.loanTypeId = loanTypeId;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
     }
 
     public String getIdentityDocument() {

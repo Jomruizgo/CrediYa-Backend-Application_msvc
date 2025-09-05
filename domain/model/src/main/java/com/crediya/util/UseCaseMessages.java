@@ -21,7 +21,11 @@ public class UseCaseMessages {
     public static final String LOAN_APPLICATION_NOT_FOUND = "Loan application not found with id: %s";
     
     // Business logic messages
-    public static final String LOAN_APPLICATION_ALREADY_EXISTS = "Already exists a pending loan application with identity document %s";
+    public static final String LOAN_APPLICATION_ALREADY_EXISTS = "Already exists a pending loan application with this identity document.";
+    
+    // Authorization messages
+    public static final String UNAUTHORIZED_USER_ROLE = "Only CLIENT role can apply for loans. Current role: %s";
+    public static final String CLIENT_ROLE = "ROLE_CLIENT";
     
     private UseCaseMessages() {
         // Utility class

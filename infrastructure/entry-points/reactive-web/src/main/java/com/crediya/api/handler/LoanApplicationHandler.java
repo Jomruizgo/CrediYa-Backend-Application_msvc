@@ -10,6 +10,7 @@ import com.crediya.usecase.LoanApplicationUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -31,15 +32,25 @@ public class LoanApplicationHandler extends LoanApplicationApiDocs {
                 .flatMap(correlationId -> {
                     log.info(LogMessages.LOAN_APPLICATION_REGISTER_STARTED, correlationId);
                     
-                    return serverRequest.bodyToMono(LoanApplicationRequestDto.class)
-                            .doOnNext(request -> 
-                                log.debug(LogMessages.LOAN_APPLICATION_REGISTER_DATA_RECEIVED, correlationId, request.getIdentityDocument()))
-                            .flatMap(request -> 
-                                loanApplicationUseCase.execute(request.getUserId(), request.getIdentityDocument(), requestMapper.toLoan(request)))
-                            .map(responseMapper::toResponseDto)
-                            .doOnSuccess(response -> log.info(LogMessages.LOAN_APPLICATION_REGISTER_SUCCESS, correlationId, response.getId()))
-                            .doOnError(error -> log.error(LogMessages.LOAN_APPLICATION_REGISTER_ERROR, correlationId, error))
-                            .flatMap(response -> ServerResponse.ok().bodyValue(response));
+                    return ReactiveSecurityContextHolder.getContext()
+                            .flatMap(securityCtx -> {
+                                Long userId = Long.valueOf((String) securityCtx.getAuthentication().getPrincipal());
+                                String userRole = securityCtx.getAuthentication().getAuthorities()
+                                    .stream()
+                                    .findFirst()
+                                    .map(authority -> authority.getAuthority())
+                                    .orElse("UNKNOWN");
+                                
+                                return serverRequest.bodyToMono(LoanApplicationRequestDto.class)
+                                    .doOnNext(request -> 
+                                        log.debug(LogMessages.LOAN_APPLICATION_REGISTER_DATA_RECEIVED, correlationId, request.getIdentityDocument()))
+                                    .flatMap(request -> 
+                                        loanApplicationUseCase.execute(userId, userRole, request.getIdentityDocument(), requestMapper.toLoan(request)))
+                                    .map(responseMapper::toResponseDto)
+                                    .doOnSuccess(response -> log.info(LogMessages.LOAN_APPLICATION_REGISTER_SUCCESS, correlationId, response.getId()))
+                                    .doOnError(error -> log.error(LogMessages.LOAN_APPLICATION_REGISTER_ERROR, correlationId, error))
+                                    .flatMap(response -> ServerResponse.ok().bodyValue(response));
+                            });
                 });
     }
 

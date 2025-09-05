@@ -8,6 +8,7 @@ import com.crediya.gatewayport.IAuthCommunicationPort;
 import com.crediya.gatewayport.ILoanTypePersistencePort;
 import com.crediya.exception.InvalidLoanApplicationDataException;
 import com.crediya.exception.LoanApplicationAlreadyExistsException;
+import com.crediya.exception.UnauthorizedUserException;
 import com.crediya.serviceport.ILoanApplication;
 import com.crediya.util.Constant;
 import com.crediya.util.UseCaseMessages;
@@ -31,44 +32,49 @@ public class LoanApplicationUseCase implements ILoanApplication {
         this.loanTypePersistencePort = loanTypePersistencePort;
     }
 
-    public Mono<LoanApplication> execute(Long userId, String identityDocument, Loan loan) {
-        return Mono.defer(() -> {
-            try {
-                validateInputSync(identityDocument, loan);
-                return validateLoanLimits(loan)
-                        .then(Mono.defer(() -> validateNoPendingApplication(identityDocument)))
-                        .then(Mono.defer(() -> authCommunicationPort.validateAndUpdateUserDocument(userId, identityDocument)))
-                        .then(createLoanApplication(identityDocument, loan))
-                        .flatMap(loanApplicationPersistencePort::save);
-            } catch (Exception e) {
-                return Mono.error(e);
-            }
-        });
+    public Mono<LoanApplication> execute(Long userId, String userRole, String identityDocument, Loan loan) {
+        return validateUserRole(userRole)
+                .then(validateInput(identityDocument, loan))
+                .then(validateLoanLimits(loan))
+                .then(validateNoPendingApplication(identityDocument))
+                .then(authCommunicationPort.validateAndUpdateUserDocument(userId, identityDocument))
+                .then(createLoanApplication(identityDocument, loan))
+                .flatMap(loanApplicationPersistencePort::save);
     }
 
-    private void validateInputSync(String identityDocument, Loan loan) {
+    private Mono<Void> validateUserRole(String userRole) {
+        if (!UseCaseMessages.CLIENT_ROLE.equals(userRole)) {
+            return Mono.error(new UnauthorizedUserException(
+                String.format(UseCaseMessages.UNAUTHORIZED_USER_ROLE, userRole)));
+        }
+        return Mono.empty();
+    }
+
+    private Mono<Void> validateInput(String identityDocument, Loan loan) {
         if (identityDocument == null || identityDocument.trim().isEmpty()) {
-            throw new InvalidLoanApplicationDataException(UseCaseMessages.IDENTITY_DOCUMENT_REQUIRED);
+            return Mono.error(new InvalidLoanApplicationDataException(UseCaseMessages.IDENTITY_DOCUMENT_REQUIRED));
         }
         if (loan == null) {
-            throw new InvalidLoanApplicationDataException(UseCaseMessages.LOAN_TYPE_REQUIRED);
+            return Mono.error(new InvalidLoanApplicationDataException(UseCaseMessages.LOAN_TYPE_REQUIRED));
         }
         if (loan.getAmount() == null) {
-            throw new InvalidLoanApplicationDataException(UseCaseMessages.AMOUNT_REQUIRED);
+            return Mono.error(new InvalidLoanApplicationDataException(UseCaseMessages.AMOUNT_REQUIRED));
         }
         if (loan.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidLoanApplicationDataException(UseCaseMessages.AMOUNT_MUST_BE_POSITIVE);
+            return Mono.error(new InvalidLoanApplicationDataException(UseCaseMessages.AMOUNT_MUST_BE_POSITIVE));
         }
         if (loan.getTermMonths() == null) {
-            throw new InvalidLoanApplicationDataException(UseCaseMessages.TERM_REQUIRED);
+            return Mono.error(new InvalidLoanApplicationDataException(UseCaseMessages.TERM_REQUIRED));
         }
         if (loan.getTermMonths() <= 0) {
-            throw new InvalidLoanApplicationDataException(UseCaseMessages.TERM_MUST_BE_POSITIVE);
+            return Mono.error(new InvalidLoanApplicationDataException(UseCaseMessages.TERM_MUST_BE_POSITIVE));
         }
         if (loan.getLoanTypeId() == null) {
-            throw new InvalidLoanApplicationDataException(UseCaseMessages.LOAN_TYPE_REQUIRED);
+            return Mono.error(new InvalidLoanApplicationDataException(UseCaseMessages.LOAN_TYPE_REQUIRED));
         }
+        return Mono.empty();
     }
+
 
     private Mono<Void> validateLoanLimits(Loan loan) {
         return loanTypePersistencePort.findByIdAndActive(loan.getLoanTypeId())
@@ -103,8 +109,7 @@ public class LoanApplicationUseCase implements ILoanApplication {
     private Mono<Void> validateNoPendingApplication(String identityDocument) {
         return loanApplicationPersistencePort.findByIdentityDocumentAndStatus(identityDocument, ApplicationStatus.PENDING_REVIEW)
                 .flatMap(existingApplication -> {
-                    return Mono.<Void>error(new LoanApplicationAlreadyExistsException(
-                        String.format(UseCaseMessages.LOAN_APPLICATION_ALREADY_EXISTS, identityDocument)));
+                    return Mono.<Void>error(new LoanApplicationAlreadyExistsException(UseCaseMessages.LOAN_APPLICATION_ALREADY_EXISTS));
                 })
                 .switchIfEmpty(Mono.empty());
     }
