@@ -15,4 +15,6 @@ public class SecurityMessages {
     public static final String INVALID_USER_ID_FORMAT = "Invalid userId format in token: {}";
     public static final String NO_JWT_TOKEN_FOUND = "[CREDIYA-{}] No JWT token found in Authorization header for protected path: {}";
     public static final String INVALID_JWT_TOKEN = "[CREDIYA-{}] Invalid JWT token provided for path: {}";
+    public static final String SAVING_TOKEN_IN_CONTEXT = "Saving token in context: {}...";
+    
 }

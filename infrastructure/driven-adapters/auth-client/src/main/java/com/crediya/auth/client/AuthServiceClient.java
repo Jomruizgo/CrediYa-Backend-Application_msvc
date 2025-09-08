@@ -1,7 +1,7 @@
 package com.crediya.auth.client;
 
-import com.crediya.auth.dto.UpdateUserDocumentRequestDto;
 import com.crediya.auth.dto.UserDto;
+import com.crediya.auth.filter.JwtPropagationFilter;
 import com.crediya.auth.util.AuthApiPaths;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -17,6 +17,7 @@ public class AuthServiceClient {
                            @Value("${auth.service.url:" + AuthApiPaths.DEFAULT_AUTH_SERVICE_URL + "}") String authServiceUrl) {
         this.webClient = webClientBuilder
                 .baseUrl(authServiceUrl)
+                .filter(new JwtPropagationFilter())
                 .build();
     }
     
@@ -27,11 +28,4 @@ public class AuthServiceClient {
                 .bodyToMono(UserDto.class);
     }
     
-    public Mono<UserDto> updateUser(Long userId, UpdateUserDocumentRequestDto request) {
-        return webClient.put()
-                .uri(AuthApiPaths.UPDATE_USER, userId)
-                .bodyValue(request)
-                .retrieve()
-                .bodyToMono(UserDto.class);
-    }
 }

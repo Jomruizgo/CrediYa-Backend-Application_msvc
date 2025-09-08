@@ -7,7 +7,6 @@ public class AuthApiPaths {
     
     // API Paths
     public static final String GET_USER_BY_ID = "/api/v1/user/{id}";
-    public static final String UPDATE_USER = "/api/v1/user/{id}";
     
     private AuthApiPaths() {
         // Utility class

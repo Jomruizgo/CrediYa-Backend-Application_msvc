@@ -43,8 +43,12 @@ public class JwtAuthenticationWebFilter implements WebFilter {
         }
         
         return authenticateToken(token, exchange)
-                .flatMap(authentication -> chain.filter(exchange)
-                        .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication)))
+                .flatMap(authentication -> {
+                    log.debug(SecurityMessages.SAVING_TOKEN_IN_CONTEXT, token.substring(0, Math.min(10, token.length())));
+                    return chain.filter(exchange)
+                            .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
+                            .contextWrite(ctx -> ctx.put("JWT_TOKEN", token));
+                })
                 .onErrorResume(error -> {
                     log.debug(SecurityMessages.AUTHENTICATION_FAILED_FOR_TOKEN, error);
                     return chain.filter(exchange);

@@ -10,7 +10,6 @@ import com.crediya.exception.InvalidLoanApplicationDataException;
 import com.crediya.exception.LoanApplicationAlreadyExistsException;
 import com.crediya.exception.UnauthorizedUserException;
 import com.crediya.serviceport.ILoanApplication;
-import com.crediya.util.Constant;
 import com.crediya.util.UseCaseMessages;
 import reactor.core.publisher.Mono;
 
@@ -35,22 +34,27 @@ public class LoanApplicationUseCase implements ILoanApplication {
     public Mono<LoanApplication> execute(Long userId, String userRole, String identityDocument, Loan loan) {
         return validateUserRole(userRole)
                 .then(validateInput(identityDocument, loan))
-                .then(validateLoanLimits(loan))
-                .then(validateNoPendingApplication(identityDocument))
-                .then(authCommunicationPort.validateAndUpdateUserDocument(userId, identityDocument))
-                .then(createLoanApplication(identityDocument, loan))
-                .flatMap(loanApplicationPersistencePort::save);
+                .flatMap(validatedLoan -> validateLoanLimits(validatedLoan)
+                    .then(validateNoPendingApplication(identityDocument))
+                    .then(authCommunicationPort.validateAndUpdateUserDocument(userId, identityDocument))
+                    .then(createLoanApplication(identityDocument, validatedLoan))
+                    .flatMap(loanApplicationPersistencePort::save)
+                );
     }
 
     private Mono<Void> validateUserRole(String userRole) {
-        if (!UseCaseMessages.CLIENT_ROLE.equals(userRole)) {
+        System.out.println("DEBUG: userRole = " + userRole);
+        System.out.println("DEBUG: About to compare roles");
+        if (!"ROLE_CLIENT".equals(userRole)) {
+            System.out.println("DEBUG: Creating UnauthorizedUserException");
             return Mono.error(new UnauthorizedUserException(
-                String.format(UseCaseMessages.UNAUTHORIZED_USER_ROLE, userRole)));
+                String.format("Only CLIENT role can apply for loans. Current role: %s", userRole)));
         }
+        System.out.println("DEBUG: Role validation passed");
         return Mono.empty();
     }
 
-    private Mono<Void> validateInput(String identityDocument, Loan loan) {
+    private Mono<Loan> validateInput(String identityDocument, Loan loan) {
         if (identityDocument == null || identityDocument.trim().isEmpty()) {
             return Mono.error(new InvalidLoanApplicationDataException(UseCaseMessages.IDENTITY_DOCUMENT_REQUIRED));
         }
@@ -72,7 +76,7 @@ public class LoanApplicationUseCase implements ILoanApplication {
         if (loan.getLoanTypeId() == null) {
             return Mono.error(new InvalidLoanApplicationDataException(UseCaseMessages.LOAN_TYPE_REQUIRED));
         }
-        return Mono.empty();
+        return Mono.just(loan);
     }
 
 

@@ -72,22 +72,22 @@ public class LoanApplicationPersistenceAdapter implements ILoanApplicationPersis
     public Mono<LoanApplication> findByIdentityDocumentAndStatus(String identityDocument, ApplicationStatus status) {
         return Mono.deferContextual(ctx -> {
             String correlationId = ctx.getOrDefault("correlationId", "NO_CONTEXT");
-            logger.info("[CREDIYA-DB-{}] Starting to find loan application by document: {} and status: {}", 
+            logger.info(LogMessages.LOAN_APPLICATION_FIND_BY_DOCUMENT_STARTED, 
                     correlationId, identityDocument, status);
             
             return repository.findByIdentityDocumentAndStatus(identityDocument, status.name())
                     .map(mapper::toDomain)
                     .doOnSuccess(found -> {
                         if (found != null) {
-                            logger.info("[CREDIYA-DB-{}] Loan application found by document: {} and status: {}", 
+                            logger.info(LogMessages.LOAN_APPLICATION_FIND_BY_DOCUMENT_SUCCESS, 
                                     correlationId, identityDocument, status);
                         } else {
-                            logger.info("[CREDIYA-DB-{}] No loan application found by document: {} and status: {}", 
+                            logger.info(LogMessages.LOAN_APPLICATION_FIND_BY_DOCUMENT_NOT_FOUND, 
                                     correlationId, identityDocument, status);
                         }
                     })
                     .doOnError(error -> 
-                        logger.error("[CREDIYA-DB-{}] Error finding loan application by document and status", correlationId, error));
+                        logger.error(LogMessages.LOAN_APPLICATION_FIND_BY_DOCUMENT_ERROR, correlationId, error));
         });
     }
 }
