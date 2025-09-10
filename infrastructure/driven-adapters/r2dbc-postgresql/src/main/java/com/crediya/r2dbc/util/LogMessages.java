@@ -20,4 +20,11 @@ public final class LogMessages {
     public static final String LOAN_APPLICATION_FIND_BY_DOCUMENT_SUCCESS = "[CREDIYA-DB-{}] Loan application found by document: {} and status: {}";
     public static final String LOAN_APPLICATION_FIND_BY_DOCUMENT_NOT_FOUND = "[CREDIYA-DB-{}] No loan application found by document: {} and status: {}";
     public static final String LOAN_APPLICATION_FIND_BY_DOCUMENT_ERROR = "[CREDIYA-DB-{}] Error finding loan application by document and status";
+    
+    public static final String LOAN_APPLICATION_REVIEW_SEARCH_STARTED = "[CREDIYA-DB-{}] Starting to find applications for review with filter: {}";
+    public static final String LOAN_APPLICATION_REVIEW_SEARCH_SUCCESS = "[CREDIYA-DB-{}] Found {} applications for review";
+    public static final String LOAN_APPLICATION_REVIEW_SEARCH_ERROR = "[CREDIYA-DB-{}] Error finding applications for review";
+    public static final String LOAN_APPLICATION_USER_DATA_ENRICHMENT_STARTED = "[CREDIYA-DB-{}] Starting to enrich application {} with user data";
+    public static final String LOAN_APPLICATION_USER_DATA_ENRICHMENT_SUCCESS = "[CREDIYA-DB-{}] Successfully enriched application {} with user data";
+    public static final String LOAN_APPLICATION_USER_DATA_ENRICHMENT_ERROR = "[CREDIYA-DB-{}] Error enriching application {} with user data, using fallback";
 }

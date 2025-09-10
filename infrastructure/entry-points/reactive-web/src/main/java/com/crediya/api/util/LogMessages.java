@@ -25,6 +25,11 @@ public final class LogMessages {
     public static final String LOAN_TYPE_GET_BY_ID_SUCCESS = "[CREDIYA-{}] Loan type found by ID: {}";
     public static final String LOAN_TYPE_GET_BY_ID_ERROR = "[CREDIYA-{}] Error getting loan type by ID: {}";
     
+    // Loan Application Review Handler Messages
+    public static final String LOAN_APPLICATION_REVIEW_STARTED = "[CREDIYA-{}] Starting loan applications review search";
+    public static final String LOAN_APPLICATION_REVIEW_SUCCESS = "[CREDIYA-{}] Successfully retrieved {} loan applications for review";
+    public static final String LOAN_APPLICATION_REVIEW_ERROR = "[CREDIYA-{}] Error retrieving loan applications for review";
+    
     // Correlation ID messages
     public static final String CORRELATION_ID_PROCESSING = "Processing request with correlation ID: {}";
     public static final String CORRELATION_ID_GENERATED = "Generated new correlation ID: {}";

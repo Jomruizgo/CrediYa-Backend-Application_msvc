@@ -4,6 +4,7 @@ import com.crediya.gatewayport.IAuthCommunicationPort;
 import com.crediya.gatewayport.ILoanApplicationPersistencePort;
 import com.crediya.gatewayport.ILoanTypePersistencePort;
 import com.crediya.usecase.LoanApplicationUseCase;
+import com.crediya.usecase.LoanApplicationReviewUseCase;
 import com.crediya.usecase.LoanTypeUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;

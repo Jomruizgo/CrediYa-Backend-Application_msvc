@@ -16,6 +16,7 @@ CREATE TABLE loan_types (
 -- Create loan_applications table
 CREATE TABLE loan_applications (
     id VARCHAR(36) PRIMARY KEY,
+    user_id BIGINT NOT NULL,
     identity_document VARCHAR(50) NOT NULL,
     amount DECIMAL(15,2) NOT NULL,
     term_months INTEGER NOT NULL,

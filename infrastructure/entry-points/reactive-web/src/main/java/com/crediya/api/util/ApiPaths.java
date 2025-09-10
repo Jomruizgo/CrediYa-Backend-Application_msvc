@@ -7,6 +7,7 @@ public final class ApiPaths {
     // Loan Application paths
     public static final String LOAN_APPLICATION_BASE = API_V1_BASE + "/application";
     public static final String LOAN_APPLICATION_BY_ID = LOAN_APPLICATION_BASE + "/{id}";
+    public static final String LOAN_APPLICATIONS = API_V1_BASE + "/applications";
     
     // Loan Type paths
     public static final String LOAN_TYPE_BASE = API_V1_BASE + "/loan-types";

@@ -3,8 +3,11 @@ package com.crediya.auth.adapter;
 import com.crediya.auth.client.AuthServiceClient;
 import com.crediya.auth.util.AuthErrorMessages;
 import com.crediya.gatewayport.IAuthCommunicationPort;
+import com.crediya.model.UserInfo;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+
+import java.math.BigDecimal;
 
 @Component
 public class AuthCommunicationAdapter implements IAuthCommunicationPort {
@@ -28,5 +31,15 @@ public class AuthCommunicationAdapter implements IAuthCommunicationPort {
                     }
                 })
                 .then();
+    }
+
+    @Override
+    public Mono<UserInfo> getUserInfo(Long userId) {
+        return authServiceClient.getUserById(userId)
+                .map(userDto -> new UserInfo(
+                        userDto.email(),
+                        userDto.name() + " " + userDto.lastName(),
+                        userDto.baseSalary()
+                ));
     }
 }

@@ -37,7 +37,7 @@ public class LoanApplicationUseCase implements ILoanApplication {
                 .flatMap(validatedLoan -> validateLoanLimits(validatedLoan)
                     .then(validateNoPendingApplication(identityDocument))
                     .then(authCommunicationPort.validateAndUpdateUserDocument(userId, identityDocument))
-                    .then(createLoanApplication(identityDocument, validatedLoan))
+                    .then(createLoanApplication(userId, identityDocument, validatedLoan))
                     .flatMap(loanApplicationPersistencePort::save)
                 );
     }
@@ -125,9 +125,10 @@ public class LoanApplicationUseCase implements ILoanApplication {
                     String.format(UseCaseMessages.LOAN_APPLICATION_NOT_FOUND, id))));
     }
 
-    private Mono<LoanApplication> createLoanApplication(String identityDocument, Loan loan) {
+    private Mono<LoanApplication> createLoanApplication(Long userId, String identityDocument, Loan loan) {
         return Mono.fromSupplier(() -> new LoanApplication(
                 UUID.randomUUID().toString(),
+                userId,
                 identityDocument,
                 loan,
                 ApplicationStatus.PENDING_REVIEW,

@@ -11,6 +11,7 @@ public class LoanApplicationEntity {
     
     @Id
     private String id;
+    private Long userId;
     private String identityDocument;
     private BigDecimal amount;
     private Integer termMonths;
@@ -20,10 +21,11 @@ public class LoanApplicationEntity {
 
     public LoanApplicationEntity() {}
 
-    public LoanApplicationEntity(String id, String identityDocument, BigDecimal amount, 
+    public LoanApplicationEntity(String id, Long userId, String identityDocument, BigDecimal amount, 
                                Integer termMonths, Long loanTypeId, String status, 
                                LocalDateTime createdAt) {
         this.id = id;
+        this.userId = userId;
         this.identityDocument = identityDocument;
         this.amount = amount;
         this.termMonths = termMonths;
@@ -38,6 +40,14 @@ public class LoanApplicationEntity {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public String getIdentityDocument() {

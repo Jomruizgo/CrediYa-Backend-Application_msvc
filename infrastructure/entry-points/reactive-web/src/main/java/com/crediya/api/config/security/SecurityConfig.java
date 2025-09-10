@@ -33,6 +33,8 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.POST, ApiPaths.LOAN_APPLICATION_BASE).hasRole("CLIENT")
                         // Loan Applications - Only CLIENT role can view their applications  
                         .pathMatchers(HttpMethod.GET, ApiPaths.LOAN_APPLICATION_BY_ID).hasRole("CLIENT")
+                        // Loan Applications Review - Only SELLER role can access review functionality
+                        .pathMatchers(HttpMethod.GET, ApiPaths.LOAN_APPLICATIONS).hasRole("SELLER")
                         .anyExchange().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationWebFilter, SecurityWebFiltersOrder.AUTHENTICATION)

@@ -349,7 +349,7 @@ class LoanApplicationUseCaseTest {
     @Test
     void shouldFailWhenPendingApplicationExists() {
         LoanApplication existingApplication = new LoanApplication(
-            "existing-id", validIdentityDocument, validLoan, ApplicationStatus.PENDING_REVIEW, LocalDateTime.now()
+            "existing-id", 1L, validIdentityDocument, validLoan, ApplicationStatus.PENDING_REVIEW, LocalDateTime.now()
         );
         
         when(loanTypePersistencePort.findByIdAndActive(1L))
@@ -394,7 +394,7 @@ class LoanApplicationUseCaseTest {
     void findById_ShouldReturnLoanApplication_WhenExists() {
         String applicationId = "test-id-123";
         LoanApplication expectedApplication = new LoanApplication(
-            applicationId, validIdentityDocument, validLoan, ApplicationStatus.PENDING_REVIEW, LocalDateTime.now()
+            applicationId, 1L, validIdentityDocument, validLoan, ApplicationStatus.PENDING_REVIEW, LocalDateTime.now()
         );
         
         when(loanApplicationPersistencePort.findById(applicationId))

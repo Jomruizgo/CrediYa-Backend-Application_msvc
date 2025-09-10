@@ -1,6 +1,7 @@
 package com.crediya.api.router;
 
 import com.crediya.api.handler.LoanApplicationHandler;
+import com.crediya.api.handler.LoanApplicationReviewHandler;
 import com.crediya.api.util.ApiPaths;
 import org.springdoc.core.annotations.RouterOperation;
 import org.springdoc.core.annotations.RouterOperations;
@@ -30,12 +31,22 @@ public class LoanApplicationRouterRest {
             method = RequestMethod.GET,
             beanClass = LoanApplicationHandler.class,
             beanMethod = "getApplicationById"
+        ),
+        @RouterOperation(
+            path = ApiPaths.LOAN_APPLICATIONS,
+            method = RequestMethod.GET,
+            beanClass = LoanApplicationReviewHandler.class,
+            beanMethod = "getApplicationsForReview"
         )
     })
-    public RouterFunction<ServerResponse> loanApplicationRoutes(LoanApplicationHandler loanApplicationHandler) {
+    public RouterFunction<ServerResponse> loanApplicationRoutes(
+            LoanApplicationHandler loanApplicationHandler,
+            LoanApplicationReviewHandler loanApplicationReviewHandler) {
         return route(POST(ApiPaths.LOAN_APPLICATION_BASE).and(accept(MediaType.APPLICATION_JSON)),
                     loanApplicationHandler::registerApplication)
                 .andRoute(GET(ApiPaths.LOAN_APPLICATION_BY_ID),
-                    loanApplicationHandler::getApplicationById);
+                    loanApplicationHandler::getApplicationById)
+                .andRoute(GET(ApiPaths.LOAN_APPLICATIONS),
+                    loanApplicationReviewHandler::getApplicationsForReview);
     }
 }

@@ -5,14 +5,16 @@ import java.util.Objects;
 
 public class LoanApplication {
     private final String id;
+    private final Long userId;
     private final String identityDocument;
     private final Loan loan;
     private final ApplicationStatus status;
     private final LocalDateTime createdAt;
 
-    public LoanApplication(String id, String identityDocument, Loan loan, 
+    public LoanApplication(String id, Long userId, String identityDocument, Loan loan, 
                           ApplicationStatus status, LocalDateTime createdAt) {
         this.id = id;
+        this.userId = userId;
         this.identityDocument = identityDocument;
         this.loan = loan;
         this.status = status;
@@ -21,6 +23,10 @@ public class LoanApplication {
 
     public String getId() {
         return id;
+    }
+
+    public Long getUserId() {
+        return userId;
     }
 
     public String getIdentityDocument() {
@@ -56,6 +62,7 @@ public class LoanApplication {
     public String toString() {
         return "LoanApplication{" +
                 "id='" + id + '\'' +
+                ", userId=" + userId +
                 ", identityDocument='" + identityDocument + '\'' +
                 ", loan=" + loan +
                 ", status=" + status +
