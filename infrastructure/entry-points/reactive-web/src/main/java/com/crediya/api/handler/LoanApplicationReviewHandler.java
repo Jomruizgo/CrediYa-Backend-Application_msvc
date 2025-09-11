@@ -16,6 +16,7 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
@@ -51,12 +52,12 @@ public class LoanApplicationReviewHandler extends LoanApplicationReviewApiDocs {
                                 
                                 return buildFilterFromRequest(serverRequest)
                                         .flatMap(filter -> loanApplicationReviewService.findApplicationsForReview(filter))
-                                        .map(page -> {
-                                            var dtoContent = page.getContent().stream()
+                                        .flatMap(page -> 
+                                            Flux.fromIterable(page.getContent())
                                                     .map(reviewResponseMapper::toResponseDto)
-                                                    .toList();
-                                            return pageResponseMapper.toPageResponseDto(page, dtoContent);
-                                        })
+                                                    .collectList()
+                                                    .map(dtoContent -> pageResponseMapper.toPageResponseDto(page, dtoContent))
+                                        )
                                         .doOnSuccess(response -> 
                                                 log.info(LogMessages.LOAN_APPLICATION_REVIEW_SUCCESS, 
                                                         correlationId, response.getContent().size()))
