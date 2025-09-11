@@ -25,9 +25,7 @@ public class UseCaseMessages {
     
     // Authorization messages
     public static final String UNAUTHORIZED_USER_ROLE = "Only CLIENT role can apply for loans. Current role: %s";
-    public static final String UNAUTHORIZED_SELLER_ROLE = "Only SELLER role can access loan review functions. Current role: %s";
     public static final String CLIENT_ROLE = "ROLE_CLIENT";
-    public static final String SELLER_ROLE = "ROLE_SELLER";
     
     // Filter validation messages
     public static final String FILTER_REQUIRED = "Filter is required";

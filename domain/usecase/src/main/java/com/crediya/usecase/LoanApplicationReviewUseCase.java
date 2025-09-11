@@ -18,17 +18,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.Flux;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
 
 public class LoanApplicationReviewUseCase implements ILoanApplicationReviewService {
-
-    private static final List<ApplicationStatus> REVIEW_STATUSES = Arrays.asList(
-        ApplicationStatus.PENDING_REVIEW,
-        ApplicationStatus.REJECTED,
-        ApplicationStatus.MANUAL_REVIEW
-    );
-    
 
     private final ILoanApplicationPersistencePort loanApplicationPersistencePort;
     private final IAuthCommunicationPort authCommunicationPort;
@@ -44,55 +35,28 @@ public class LoanApplicationReviewUseCase implements ILoanApplicationReviewServi
 
     @Override
     public Mono<Page<LoanApplicationReview>> findApplicationsForReview(PageFilter filter) {
-        return validateFilter(filter)
-                .then(loanApplicationPersistencePort.findApplicationsForReview(filter))
+        return Mono.fromCallable(() -> {
+                    // Validate filter
+                    if (filter == null) {
+                        throw new com.crediya.exception.InvalidLoanApplicationDataException(UseCaseMessages.FILTER_REQUIRED);
+                    }
+                    
+                    Integer pageSize = filter.getPageSize();
+                    if (pageSize == null || pageSize <= 0 || pageSize > Constant.MAX_PAGE_SIZE) {
+                        throw new com.crediya.exception.InvalidLoanApplicationDataException(UseCaseMessages.INVALID_PAGE_SIZE);
+                    }
+                    
+                    Integer pageNumber = filter.getPageNumber();
+                    if (pageNumber == null || pageNumber < 0) {
+                        throw new com.crediya.exception.InvalidLoanApplicationDataException(UseCaseMessages.INVALID_PAGE_NUMBER);
+                    }
+                    
+                    return filter;
+                })
+                .flatMap(validatedFilter -> loanApplicationPersistencePort.findApplicationsForReview(validatedFilter))
                 .flatMap(this::enrichApplicationsPage);
     }
     
-    public Mono<Page<LoanApplicationReview>> findApplicationsForReview(String userRole, PageFilter filter) {
-        return validateSellerRole(userRole)
-                .then(validateFilter(filter))
-                .then(loanApplicationPersistencePort.findApplicationsForReview(filter))
-                .flatMap(this::enrichApplicationsPage);
-    }
-
-    private Mono<Void> validateFilter(PageFilter filter) {
-        if (filter == null) {
-            return Mono.error(new InvalidLoanApplicationDataException(UseCaseMessages.FILTER_REQUIRED));
-        }
-        
-        if (filter.getPageSize() <= 0 || filter.getPageSize() > Constant.MAX_PAGE_SIZE) {
-            return Mono.error(new InvalidLoanApplicationDataException(UseCaseMessages.INVALID_PAGE_SIZE));
-        }
-        
-        if (filter.getPageNumber() < 0) {
-            return Mono.error(new InvalidLoanApplicationDataException(UseCaseMessages.INVALID_PAGE_NUMBER));
-        }
-        
-        return Mono.empty();
-    }
-
-    private Mono<Void> validateSellerRole(String userRole) {
-        if (!UseCaseMessages.SELLER_ROLE.equals(userRole)) {
-            return Mono.error(new com.crediya.exception.UnauthorizedUserException(
-                String.format(UseCaseMessages.UNAUTHORIZED_SELLER_ROLE, userRole)));
-        }
-        return Mono.empty();
-    }
-
-    public Mono<Page<LoanApplicationReview>> findApplicationsForReviewWithDefaults(
-            int pageNumber, 
-            int pageSize) {
-        
-        PageFilter defaultFilter = new PageFilter.Builder()
-                .filter("statuses", REVIEW_STATUSES)
-                .sortBy(Constant.DEFAULT_SORT_BY)
-                .sortOrder(Constant.DEFAULT_SORT_ORDER)
-                .page(pageNumber, pageSize > 0 ? pageSize : Constant.DEFAULT_PAGE_SIZE)
-                .build();
-                
-        return findApplicationsForReview(defaultFilter);
-    }
 
     private Mono<Page<LoanApplicationReview>> enrichApplicationsPage(Page<LoanApplication> applicationPage) {
         return Flux.fromIterable(applicationPage.getContent())
@@ -144,15 +108,38 @@ public class LoanApplicationReviewUseCase implements ILoanApplicationReviewServi
     }
 
     private Mono<BigDecimal> calculateApprovedLoansMonthlyPayment(String identityDocument) {
+        if (identityDocument == null || identityDocument.trim().isEmpty()) {
+            return Mono.just(BigDecimal.ZERO);
+        }
+        
         return loanApplicationPersistencePort.findApprovedApplicationsByIdentityDocument(identityDocument)
                 .flatMap(approvedApp -> {
-                    return loanTypePersistencePort.findById(approvedApp.getLoan().getLoanTypeId())
-                            .map(loanType -> calculateMonthlyPayment(
-                                    approvedApp.getLoan().getAmount(),
-                                    loanType.getInterestRate(),
-                                    approvedApp.getLoan().getTermMonths()
-                            ))
-                            .onErrorReturn(BigDecimal.ZERO);
+                    try {
+                        if (approvedApp == null || approvedApp.getLoan() == null) {
+                            return Mono.just(BigDecimal.ZERO);
+                        }
+                        
+                        Long loanTypeId = approvedApp.getLoan().getLoanTypeId();
+                        if (loanTypeId == null) {
+                            return Mono.just(BigDecimal.ZERO);
+                        }
+                        
+                        return loanTypePersistencePort.findById(loanTypeId)
+                                .map(loanType -> {
+                                    try {
+                                        return calculateMonthlyPayment(
+                                                approvedApp.getLoan().getAmount(),
+                                                loanType.getInterestRate(),
+                                                approvedApp.getLoan().getTermMonths()
+                                        );
+                                    } catch (Exception e) {
+                                        return BigDecimal.ZERO;
+                                    }
+                                })
+                                .onErrorReturn(BigDecimal.ZERO);
+                    } catch (Exception e) {
+                        return Mono.just(BigDecimal.ZERO);
+                    }
                 })
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .onErrorReturn(BigDecimal.ZERO);

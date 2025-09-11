@@ -1,12 +1,15 @@
 package com.crediya.api.handler;
 
+import com.crediya.api.docs.LoanApplicationReviewApiDocs;
 import com.crediya.api.mapper.LoanApplicationReviewResponseMapper;
 import com.crediya.api.mapper.PageResponseMapper;
 import com.crediya.api.util.CorrelationIdUtil;
 import com.crediya.api.util.LogMessages;
+import com.crediya.api.util.SecurityMessages;
+import com.crediya.exception.UnauthorizedUserException;
 import com.crediya.model.ApplicationStatus;
 import com.crediya.model.PageFilter;
-import com.crediya.usecase.LoanApplicationReviewUseCase;
+import com.crediya.serviceport.ILoanApplicationReviewService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -21,9 +24,9 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class LoanApplicationReviewHandler {
+public class LoanApplicationReviewHandler extends LoanApplicationReviewApiDocs {
 
-    private final LoanApplicationReviewUseCase loanApplicationReviewUseCase;
+    private final ILoanApplicationReviewService loanApplicationReviewService;
     private final LoanApplicationReviewResponseMapper reviewResponseMapper;
     private final PageResponseMapper pageResponseMapper;
 
@@ -40,9 +43,15 @@ public class LoanApplicationReviewHandler {
                                     .map(authority -> authority.getAuthority())
                                     .orElse("UNKNOWN");
                                 
+                                // Validate seller role at handler level
+                                if (!SecurityMessages.SELLER_ROLE.equals(userRole)) {
+                                    return Mono.error(new UnauthorizedUserException(
+                                        String.format(SecurityMessages.UNAUTHORIZED_SELLER_ROLE, userRole)));
+                                }
+                                
                                 PageFilter filter = buildFilterFromRequest(serverRequest);
                                 
-                                return loanApplicationReviewUseCase.findApplicationsForReview(userRole, filter)
+                                return loanApplicationReviewService.findApplicationsForReview(filter)
                                         .map(page -> {
                                             var dtoContent = page.getContent().stream()
                                                     .map(reviewResponseMapper::toResponseDto)

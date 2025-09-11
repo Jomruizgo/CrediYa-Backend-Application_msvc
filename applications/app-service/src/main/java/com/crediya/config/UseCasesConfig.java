@@ -3,6 +3,9 @@ package com.crediya.config;
 import com.crediya.gatewayport.IAuthCommunicationPort;
 import com.crediya.gatewayport.ILoanApplicationPersistencePort;
 import com.crediya.gatewayport.ILoanTypePersistencePort;
+import com.crediya.serviceport.ILoanApplication;
+import com.crediya.serviceport.ILoanApplicationReviewService;
+import com.crediya.serviceport.ILoanTypeServicePort;
 import com.crediya.usecase.LoanApplicationUseCase;
 import com.crediya.usecase.LoanApplicationReviewUseCase;
 import com.crediya.usecase.LoanTypeUseCase;
@@ -19,15 +22,4 @@ import org.springframework.context.annotation.FilterType;
         useDefaultFilters = false)
 public class UseCasesConfig {
 
-    @Bean
-    public LoanApplicationUseCase loanApplicationUseCase(ILoanApplicationPersistencePort loanApplicationPersistencePort,
-                                                       IAuthCommunicationPort authCommunicationPort,
-                                                       ILoanTypePersistencePort loanTypePersistencePort) {
-        return new LoanApplicationUseCase(loanApplicationPersistencePort, authCommunicationPort, loanTypePersistencePort);
-    }
-
-    @Bean
-    public LoanTypeUseCase loanTypeUseCase(ILoanTypePersistencePort loanTypePersistencePort) {
-        return new LoanTypeUseCase(loanTypePersistencePort);
-    }
 }
