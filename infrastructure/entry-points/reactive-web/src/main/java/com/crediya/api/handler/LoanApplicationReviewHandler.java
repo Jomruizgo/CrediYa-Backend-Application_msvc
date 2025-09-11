@@ -41,7 +41,10 @@ public class LoanApplicationReviewHandler extends LoanApplicationReviewApiDocs {
                                 String userRole = securityCtx.getAuthentication().getAuthorities()
                                     .stream()
                                     .findFirst()
-                                    .map(authority -> authority.getAuthority())
+                                    .map(authority -> {
+                                        String role = authority.getAuthority();
+                                        return role.startsWith("ROLE_") ? role.substring(5) : role;
+                                    })
                                     .orElse("UNKNOWN");
                                 
                                 return buildFilterFromRequest(serverRequest)

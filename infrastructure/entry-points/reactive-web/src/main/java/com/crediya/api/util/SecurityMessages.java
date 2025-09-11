@@ -17,8 +17,6 @@ public class SecurityMessages {
     public static final String INVALID_JWT_TOKEN = "[CREDIYA-{}] Invalid JWT token provided for path: {}";
     public static final String SAVING_TOKEN_IN_CONTEXT = "Saving token in context: {}...";
     
-    // Authorization Messages
-    public static final String UNAUTHORIZED_SELLER_ROLE = "Unauthorized: Only SELLER role can access loan applications for review. Current role: %s";
-    public static final String SELLER_ROLE = "ROLE_SELLER";
+
     
 }
