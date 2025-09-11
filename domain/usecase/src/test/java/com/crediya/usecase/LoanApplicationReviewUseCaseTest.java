@@ -116,7 +116,7 @@ class LoanApplicationReviewUseCaseTest {
                 .thenReturn(Flux.empty());
 
         // When & Then
-        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview(userRole, validPageFilter))
+        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview("SELLER", validPageFilter))
                 .assertNext(page -> {
                     assertNotNull(page);
                     assertEquals(1, page.getContent().size());
@@ -169,7 +169,7 @@ class LoanApplicationReviewUseCaseTest {
         }
 
         // When & Then
-        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview(invalidFilter))
+        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview("SELLER", invalidFilter))
                 .expectError(InvalidLoanApplicationDataException.class)
                 .verify();
     }
@@ -182,7 +182,7 @@ class LoanApplicationReviewUseCaseTest {
         org.mockito.Mockito.when(invalidFilter.getPageNumber()).thenReturn(0);
 
         // When & Then
-        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview(invalidFilter))
+        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview("SELLER", invalidFilter))
                 .expectError(InvalidLoanApplicationDataException.class)
                 .verify();
     }
@@ -195,7 +195,7 @@ class LoanApplicationReviewUseCaseTest {
         org.mockito.Mockito.when(invalidFilter.getPageNumber()).thenReturn(0);
 
         // When & Then
-        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview(invalidFilter))
+        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview("SELLER", invalidFilter))
                 .expectError(InvalidLoanApplicationDataException.class)
                 .verify();
     }
@@ -208,7 +208,7 @@ class LoanApplicationReviewUseCaseTest {
         org.mockito.Mockito.when(invalidFilter.getPageNumber()).thenReturn(0);
 
         // When & Then
-        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview(invalidFilter))
+        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview("SELLER", invalidFilter))
                 .expectError(InvalidLoanApplicationDataException.class)
                 .verify();
     }
@@ -232,7 +232,7 @@ class LoanApplicationReviewUseCaseTest {
         }
 
         // When & Then
-        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview(invalidFilter))
+        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview("SELLER", invalidFilter))
                 .expectError(InvalidLoanApplicationDataException.class)
                 .verify();
     }
@@ -245,7 +245,7 @@ class LoanApplicationReviewUseCaseTest {
         org.mockito.Mockito.when(invalidFilter.getPageNumber()).thenReturn(-1); // negative pageNumber
 
         // When & Then
-        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview(invalidFilter))
+        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview("SELLER", invalidFilter))
                 .expectError(InvalidLoanApplicationDataException.class)
                 .verify();
     }
@@ -253,7 +253,7 @@ class LoanApplicationReviewUseCaseTest {
     @Test
     void findApplicationsForReview_ShouldRejectNullFilter() {
         // When & Then
-        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview(null))
+        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview("SELLER", null))
                 .expectError(InvalidLoanApplicationDataException.class)
                 .verify();
     }
@@ -298,7 +298,7 @@ class LoanApplicationReviewUseCaseTest {
                 .thenReturn(Flux.just(approvedApp1, approvedApp2));
 
         // When & Then
-        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview("ROLE_SELLER", validPageFilter))
+        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview("SELLER", validPageFilter))
                 .assertNext(page -> {
                     assertNotNull(page);
                     assertEquals(1, page.getContent().size());
@@ -335,7 +335,7 @@ class LoanApplicationReviewUseCaseTest {
                 .thenReturn(Flux.error(new RuntimeException("Database down")));
 
         // When & Then
-        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview("ROLE_SELLER", validPageFilter))
+        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview("SELLER", validPageFilter))
                 .assertNext(page -> {
                     assertNotNull(page);
                     assertEquals(1, page.getContent().size());
@@ -372,7 +372,7 @@ class LoanApplicationReviewUseCaseTest {
                 .thenReturn(Flux.empty());
 
         // When & Then
-        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview("ROLE_SELLER", validPageFilter))
+        StepVerifier.create(loanApplicationReviewUseCase.findApplicationsForReview("SELLER", validPageFilter))
                 .assertNext(page -> {
                     LoanApplicationReview review = page.getContent().get(0);
                     assertEquals(BigDecimal.ZERO, review.getApprovedLoansMonthlyPayment());

@@ -34,11 +34,17 @@ public class LoanApplicationReviewUseCase implements ILoanApplicationReviewServi
     }
 
     @Override
-    public Mono<Page<LoanApplicationReview>> findApplicationsForReview(PageFilter filter) {
+    public Mono<Page<LoanApplicationReview>> findApplicationsForReview(String userRole, PageFilter filter) {
         return Mono.fromCallable(() -> {
+                    // Validate user role - Business rule: Only SELLER can review applications
+                    if (!UseCaseMessages.SELLER_ROLE.equals(userRole)) {
+                        throw new com.crediya.exception.UnauthorizedUserException(
+                            String.format(UseCaseMessages.UNAUTHORIZED_SELLER_ROLE, userRole));
+                    }
+                    
                     // Validate filter
                     if (filter == null) {
-                        throw new com.crediya.exception.InvalidLoanApplicationDataException(UseCaseMessages.FILTER_REQUIRED);
+                        throw new InvalidLoanApplicationDataException(UseCaseMessages.FILTER_REQUIRED);
                     }
                     
                     Integer pageSize = filter.getPageSize();

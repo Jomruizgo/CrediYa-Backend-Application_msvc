@@ -7,5 +7,5 @@ import reactor.core.publisher.Mono;
 
 public interface ILoanApplicationReviewService {
     
-    Mono<Page<LoanApplicationReview>> findApplicationsForReview(PageFilter filter);
+    Mono<Page<LoanApplicationReview>> findApplicationsForReview(String userRole, PageFilter filter);
 }

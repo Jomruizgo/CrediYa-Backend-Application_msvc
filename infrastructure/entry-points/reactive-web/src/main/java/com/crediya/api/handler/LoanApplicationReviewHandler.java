@@ -44,14 +44,8 @@ public class LoanApplicationReviewHandler extends LoanApplicationReviewApiDocs {
                                     .map(authority -> authority.getAuthority())
                                     .orElse("UNKNOWN");
                                 
-                                // Validate seller role at handler level
-                                if (!SecurityMessages.SELLER_ROLE.equals(userRole)) {
-                                    return Mono.error(new UnauthorizedUserException(
-                                        String.format(SecurityMessages.UNAUTHORIZED_SELLER_ROLE, userRole)));
-                                }
-                                
                                 return buildFilterFromRequest(serverRequest)
-                                        .flatMap(filter -> loanApplicationReviewService.findApplicationsForReview(filter))
+                                        .flatMap(filter -> loanApplicationReviewService.findApplicationsForReview(userRole, filter))
                                         .flatMap(page -> 
                                             Flux.fromIterable(page.getContent())
                                                     .map(reviewResponseMapper::toResponseDto)
