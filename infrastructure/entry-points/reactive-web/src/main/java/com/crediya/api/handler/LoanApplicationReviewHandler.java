@@ -49,9 +49,8 @@ public class LoanApplicationReviewHandler extends LoanApplicationReviewApiDocs {
                                         String.format(SecurityMessages.UNAUTHORIZED_SELLER_ROLE, userRole)));
                                 }
                                 
-                                PageFilter filter = buildFilterFromRequest(serverRequest);
-                                
-                                return loanApplicationReviewService.findApplicationsForReview(filter)
+                                return buildFilterFromRequest(serverRequest)
+                                        .flatMap(filter -> loanApplicationReviewService.findApplicationsForReview(filter))
                                         .map(page -> {
                                             var dtoContent = page.getContent().stream()
                                                     .map(reviewResponseMapper::toResponseDto)
@@ -69,7 +68,7 @@ public class LoanApplicationReviewHandler extends LoanApplicationReviewApiDocs {
                 });
     }
 
-    private PageFilter buildFilterFromRequest(ServerRequest serverRequest) {
+    private Mono<PageFilter> buildFilterFromRequest(ServerRequest serverRequest) {
         int page = serverRequest.queryParam("page")
                 .map(Integer::parseInt)
                 .orElse(0);
@@ -81,17 +80,43 @@ public class LoanApplicationReviewHandler extends LoanApplicationReviewApiDocs {
         String sortOrder = serverRequest.queryParam("sortOrder")
                 .orElse("DESC");
 
-        List<ApplicationStatus> statuses = Arrays.asList(
+        // Parse status filter from query params reactively
+        return parseStatusesFromRequest(serverRequest)
+                .map(statuses -> new PageFilter.Builder()
+                        .filter("statuses", statuses)
+                        .sortBy(sortBy)
+                        .sortOrder(sortOrder)
+                        .page(page, size)
+                        .build());
+    }
+
+    private Mono<List<ApplicationStatus>> parseStatusesFromRequest(ServerRequest serverRequest) {
+        return serverRequest.queryParam("status")
+                .or(() -> serverRequest.queryParam("statuses"))
+                .map(statusParam -> {
+                    try {
+                        String[] statusArray = statusParam.split(",");
+                        List<ApplicationStatus> statuses = Arrays.stream(statusArray)
+                                .map(String::trim)
+                                .map(String::toUpperCase)
+                                .map(ApplicationStatus::valueOf)
+                                .toList();
+                        return Mono.just(statuses);
+                    } catch (IllegalArgumentException e) {
+                        return CorrelationIdUtil.getCorrelationId()
+                                .doOnNext(correlationId -> 
+                                    log.warn(LogMessages.LOAN_APPLICATION_REVIEW_INVALID_STATUS, correlationId, statusParam))
+                                .then(Mono.just(getDefaultStatuses()));
+                    }
+                })
+                .orElse(Mono.just(getDefaultStatuses()));
+    }
+
+    private List<ApplicationStatus> getDefaultStatuses() {
+        return Arrays.asList(
                 ApplicationStatus.PENDING_REVIEW,
                 ApplicationStatus.REJECTED,
                 ApplicationStatus.MANUAL_REVIEW
         );
-
-        return new PageFilter.Builder()
-                .filter("statuses", statuses)
-                .sortBy(sortBy)
-                .sortOrder(sortOrder)
-                .page(page, size)
-                .build();
     }
 }

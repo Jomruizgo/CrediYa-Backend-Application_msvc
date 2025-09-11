@@ -29,6 +29,7 @@ public final class LogMessages {
     public static final String LOAN_APPLICATION_REVIEW_STARTED = "[CREDIYA-{}] Starting loan applications review search";
     public static final String LOAN_APPLICATION_REVIEW_SUCCESS = "[CREDIYA-{}] Successfully retrieved {} loan applications for review";
     public static final String LOAN_APPLICATION_REVIEW_ERROR = "[CREDIYA-{}] Error retrieving loan applications for review";
+    public static final String LOAN_APPLICATION_REVIEW_INVALID_STATUS = "[CREDIYA-{}] Invalid status parameter provided: {}, using default statuses";
     
     // Correlation ID messages
     public static final String CORRELATION_ID_PROCESSING = "Processing request with correlation ID: {}";

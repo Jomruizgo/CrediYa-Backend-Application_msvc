@@ -140,20 +140,20 @@ public class LoanApplicationPersistenceAdapter implements ILoanApplicationPersis
     public Flux<LoanApplication> findApprovedApplicationsByIdentityDocument(String identityDocument) {
         return Flux.deferContextual(ctx -> {
             String correlationId = ctx.getOrDefault("correlationId", "NO_CONTEXT");
-            logger.info("Starting search for approved applications for identity document: {} - CorrelationId: {}", identityDocument, correlationId);
+            logger.info(LogMessages.LOAN_APPLICATION_FIND_ACTIVE_LOANS_STARTED, correlationId, identityDocument);
             
             return entityTemplate.select(LoanApplicationEntity.class)
                     .matching(Query.query(
                         Criteria.where("identity_document").is(identityDocument)
-                                .and("status").is(ApplicationStatus.APPROVED.name())))
+                                .and("status").in(ApplicationStatus.APPROVED.name(), ApplicationStatus.DISBURSED.name())))
                     .all()
                     .map(mapper::toDomain)
                     .doOnNext(app -> 
-                        logger.debug("Found approved application: {} - CorrelationId: {}", app.getId(), correlationId))
+                        logger.debug(LogMessages.LOAN_APPLICATION_FIND_ACTIVE_LOAN_FOUND, correlationId, app.getId(), app.getStatus()))
                     .doOnComplete(() -> 
-                        logger.info("Completed search for approved applications for identity document: {} - CorrelationId: {}", identityDocument, correlationId))
+                        logger.info(LogMessages.LOAN_APPLICATION_FIND_ACTIVE_LOANS_SUCCESS, correlationId, identityDocument))
                     .doOnError(error -> 
-                        logger.error("Error searching approved applications for identity document: {} - CorrelationId: {} - Error: {}", identityDocument, correlationId, error.getMessage()));
+                        logger.error(LogMessages.LOAN_APPLICATION_FIND_ACTIVE_LOANS_ERROR, correlationId, identityDocument, error.getMessage()));
         });
     }
 

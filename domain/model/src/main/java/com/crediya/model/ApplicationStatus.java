@@ -6,5 +6,6 @@ public enum ApplicationStatus {
     APPROVED,
     REJECTED,
     DISBURSED,
-    MANUAL_REVIEW
+    MANUAL_REVIEW,
+    PAID
 }

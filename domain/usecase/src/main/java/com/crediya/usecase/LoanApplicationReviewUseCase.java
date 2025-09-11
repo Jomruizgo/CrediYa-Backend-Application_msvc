@@ -76,14 +76,14 @@ public class LoanApplicationReviewUseCase implements ILoanApplicationReviewServi
                         .onErrorReturn(new UserInfo("N/A", "N/A", BigDecimal.ZERO)),
                 loanTypePersistencePort.findById(application.getLoan().getLoanTypeId())
                         .onErrorReturn(createDefaultLoanType()),
-                calculateApprovedLoansMonthlyPayment(application.getIdentityDocument())
+                calculateActiveLoansMonthlyPayment(application.getIdentityDocument())
         ).map(tuple -> buildLoanApplicationReview(application, tuple.getT1(), tuple.getT2(), tuple.getT3()));
     }
 
     private LoanApplicationReview buildLoanApplicationReview(LoanApplication application, 
                                                            UserInfo userInfo, 
                                                            LoanType loanType,
-                                                           BigDecimal approvedLoansMonthlyPayment) {
+                                                           BigDecimal activeLoansMonthlyPayment) {
         BigDecimal monthlyPayment = calculateMonthlyPayment(
                 application.getLoan().getAmount(),
                 loanType.getInterestRate(),
@@ -102,24 +102,24 @@ public class LoanApplicationReviewUseCase implements ILoanApplicationReviewServi
                 application.getStatus(),
                 userInfo.getBaseSalary(),
                 monthlyPayment,
-                approvedLoansMonthlyPayment,
+                activeLoansMonthlyPayment,
                 application.getCreatedAt()
         );
     }
 
-    private Mono<BigDecimal> calculateApprovedLoansMonthlyPayment(String identityDocument) {
+    private Mono<BigDecimal> calculateActiveLoansMonthlyPayment(String identityDocument) {
         if (identityDocument == null || identityDocument.trim().isEmpty()) {
             return Mono.just(BigDecimal.ZERO);
         }
         
         return loanApplicationPersistencePort.findApprovedApplicationsByIdentityDocument(identityDocument)
-                .flatMap(approvedApp -> {
+                .flatMap(activeApp -> {
                     try {
-                        if (approvedApp == null || approvedApp.getLoan() == null) {
+                        if (activeApp == null || activeApp.getLoan() == null) {
                             return Mono.just(BigDecimal.ZERO);
                         }
                         
-                        Long loanTypeId = approvedApp.getLoan().getLoanTypeId();
+                        Long loanTypeId = activeApp.getLoan().getLoanTypeId();
                         if (loanTypeId == null) {
                             return Mono.just(BigDecimal.ZERO);
                         }
@@ -128,9 +128,9 @@ public class LoanApplicationReviewUseCase implements ILoanApplicationReviewServi
                                 .map(loanType -> {
                                     try {
                                         return calculateMonthlyPayment(
-                                                approvedApp.getLoan().getAmount(),
+                                                activeApp.getLoan().getAmount(),
                                                 loanType.getInterestRate(),
-                                                approvedApp.getLoan().getTermMonths()
+                                                activeApp.getLoan().getTermMonths()
                                         );
                                     } catch (Exception e) {
                                         return BigDecimal.ZERO;

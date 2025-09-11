@@ -27,4 +27,9 @@ public final class LogMessages {
     public static final String LOAN_APPLICATION_USER_DATA_ENRICHMENT_STARTED = "[CREDIYA-DB-{}] Starting to enrich application {} with user data";
     public static final String LOAN_APPLICATION_USER_DATA_ENRICHMENT_SUCCESS = "[CREDIYA-DB-{}] Successfully enriched application {} with user data";
     public static final String LOAN_APPLICATION_USER_DATA_ENRICHMENT_ERROR = "[CREDIYA-DB-{}] Error enriching application {} with user data, using fallback";
+    
+    public static final String LOAN_APPLICATION_FIND_ACTIVE_LOANS_STARTED = "[CREDIYA-DB-{}] Starting to find active loans (APPROVED and DISBURSED) for identity document: {}";
+    public static final String LOAN_APPLICATION_FIND_ACTIVE_LOANS_SUCCESS = "[CREDIYA-DB-{}] Completed search for active loans for identity document: {}";
+    public static final String LOAN_APPLICATION_FIND_ACTIVE_LOANS_ERROR = "[CREDIYA-DB-{}] Error searching active loans for identity document: {} - Error: {}";
+    public static final String LOAN_APPLICATION_FIND_ACTIVE_LOAN_FOUND = "[CREDIYA-DB-{}] Found active loan application: {} with status: {}";
 }
