@@ -15,7 +15,7 @@ public class LoanApplicationReviewApiDocs {
 
     @Operation(
         summary = "Get applications for review",
-        description = "Retrieves paginated loan applications that need review. Only accessible by SELLER role.",
+        description = "Retrieves paginated loan applications with optional status filtering. Supports dynamic filtering by application status. Only accessible by SELLER role.",
         parameters = {
             @Parameter(
                 name = "page", 
@@ -44,6 +44,17 @@ public class LoanApplicationReviewApiDocs {
                 description = "Sort order (ASC or DESC)", 
                 required = false,
                 schema = @Schema(type = "string", defaultValue = "DESC")
+            ),
+            @Parameter(
+                name = "status", 
+                in = ParameterIn.QUERY, 
+                description = "Filter by application status. Supports multiple values separated by comma. Valid values: PENDING_REVIEW, IN_EVALUATION, APPROVED, REJECTED, DISBURSED, MANUAL_REVIEW, PAID", 
+                required = false,
+                schema = @Schema(
+                    type = "string", 
+                    example = "APPROVED,DISBURSED",
+                    allowableValues = {"PENDING_REVIEW", "IN_EVALUATION", "APPROVED", "REJECTED", "DISBURSED", "MANUAL_REVIEW", "PAID"}
+                )
             )
         },
         responses = {
